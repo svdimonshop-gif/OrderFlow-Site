@@ -83,6 +83,30 @@ function initFaq() {
   const empty = document.querySelector("[data-faq-empty]");
   const summary = document.querySelector("[data-faq-summary]");
   if (!list || !chips || !search) return;
+  const placeholderExamples = [
+    "Наприклад: копіювати артикул",
+    "Наприклад: змінити кількість",
+    "Наприклад: налаштувати сповіщення",
+    "Наприклад: оновити застосунок",
+    "Наприклад: відновити синхронізацію",
+  ];
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let placeholderIndex = 0;
+  let placeholderTimer;
+
+  const stopPlaceholderRotation = () => window.clearInterval(placeholderTimer);
+  const startPlaceholderRotation = () => {
+    stopPlaceholderRotation();
+    if (reducedMotion || document.activeElement === search || search.value) return;
+    placeholderTimer = window.setInterval(() => {
+      search.classList.add("is-changing-placeholder");
+      window.setTimeout(() => {
+        placeholderIndex = (placeholderIndex + 1) % placeholderExamples.length;
+        search.placeholder = placeholderExamples[placeholderIndex];
+        search.classList.remove("is-changing-placeholder");
+      }, 170);
+    }, 3200);
+  };
 
   categoryOrder.forEach((category) => {
     const button = document.createElement("button");
@@ -124,7 +148,12 @@ function initFaq() {
     empty.hidden = filtered.length !== 0;
   }
 
-  search.addEventListener("input", renderFaq);
+  search.addEventListener("focus", stopPlaceholderRotation);
+  search.addEventListener("blur", startPlaceholderRotation);
+  search.addEventListener("input", () => {
+    stopPlaceholderRotation();
+    renderFaq();
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
       event.preventDefault();
@@ -137,6 +166,7 @@ function initFaq() {
     }
   });
   renderFaq();
+  startPlaceholderRotation();
 }
 
 async function initRelease() {
@@ -166,12 +196,12 @@ async function initRelease() {
       fresh.textContent = ageDays === 0 ? "Оновлено сьогодні" : ageDays === 1 ? "Оновлено вчора" : ageDays < 30 ? `Оновлено ${ageDays} днів тому` : "Актуальний реліз";
       fresh.classList.toggle("is-old", ageDays >= 30);
     }
-    if (apk) links.forEach((link) => { link.href = apk.browser_download_url; });
+    links.forEach((link) => { link.href = apk?.browser_download_url || releaseFallback; });
   } catch {
-    if (version) version.textContent = "Останній GitHub Release";
-    if (meta) meta.textContent = "Відкриємо сторінку завантаження";
+    if (version) version.textContent = "OrderFlow v2.7.2";
+    if (meta) meta.textContent = "Пряме завантаження APK";
     if (fresh) {
-      fresh.textContent = "Перевірити на GitHub";
+      fresh.textContent = "Резервне посилання";
       fresh.classList.add("is-old");
     }
     links.forEach((link) => { link.href = releaseFallback; });
@@ -183,6 +213,8 @@ function initNavigation() {
   const toggle = document.querySelector("[data-menu-toggle]");
   const nav = document.querySelector("[data-nav]");
   if (!header || !toggle || !nav) return;
+  let lastScrollY = window.scrollY;
+  let scrollFrame = 0;
   const closeMenu = () => {
     nav.classList.remove("open");
     toggle.setAttribute("aria-expanded", "false");
@@ -196,7 +228,20 @@ function initNavigation() {
   });
   nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
   window.addEventListener("resize", () => { if (window.innerWidth > 980) closeMenu(); });
-  window.addEventListener("scroll", () => header.classList.toggle("scrolled", window.scrollY > 24), { passive: true });
+  window.addEventListener("scroll", () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      const currentScrollY = window.scrollY;
+      const movingDown = currentScrollY > lastScrollY + 8;
+      const movingUp = currentScrollY < lastScrollY - 8;
+      const menuOpen = toggle.getAttribute("aria-expanded") === "true";
+      header.classList.toggle("scrolled", currentScrollY > 24);
+      if (!menuOpen && currentScrollY > 150 && movingDown) header.classList.add("is-hidden");
+      if (movingUp || currentScrollY <= 150 || menuOpen) header.classList.remove("is-hidden");
+      lastScrollY = currentScrollY;
+      scrollFrame = 0;
+    });
+  }, { passive: true });
 }
 
 function initReveal() {
