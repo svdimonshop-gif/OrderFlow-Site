@@ -15,8 +15,8 @@
   <title>OrderFlow — мобільне робоче місце збиральника</title>
   <link rel="icon" href="assets/logo.png">
   <link rel="preload" href="assets/fonts/GoogleSans-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=1781987192">
-  <script src="script.js?v=1781987192" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1781989271">
+  <script src="script.js?v=1781989271" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти до основного вмісту</a>
@@ -39,7 +39,7 @@
       <a href="#journey">Маршрут</a>
       <a href="#security">Безпека</a>
       <a href="#feedback">Зворотний зв’язок</a>
-      <a class="nav-download" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>Завантажити</a>
+      <a class="nav-download nav-download-desktop" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>Завантажити</a>
     </nav>
   </header>
 
@@ -74,8 +74,12 @@
             <span data-release-meta>Перевіряємо GitHub Release…</span>
           </div>
         </div>
-        <div class="hero-workflow" aria-label="Основний маршрут замовлення">
-          <span>Нове</span><i></i><span>Скан</span><i></i><span>Заміна</span><i></i><span>Пакування</span><i></i><span>QR</span>
+        <div class="hero-workflow" role="tablist" aria-label="Основний маршрут замовлення" data-hero-workflow>
+          <button class="is-active" type="button" role="tab" aria-selected="true" data-hero-step data-screen="assets/screenshots/home.jpg" data-label="Головний екран"><span>Нове</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/picking.jpg" data-label="Сканування товарів"><span>Скан</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/replacement.jpg" data-label="Заміна товару"><span>Заміна</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/packing.jpg" data-label="Пакування"><span>Пакування</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/order-details.jpg" data-label="QR та видача"><span>QR</span></button>
         </div>
       </div>
 
@@ -95,7 +99,6 @@
         </div>
         <div class="phone-wrapper">
           <div class="phone hero-phone">
-            <div class="phone-speaker"></div>
             <img src="assets/screenshots/home.jpg" alt="Головний екран OrderFlow" width="596" height="1280" data-hero-screen>
             <div class="scan-line" aria-hidden="true"></div>
           </div>
@@ -103,12 +106,6 @@
             <span></span><b data-sync-label>Офлайн</b>
           </div>
           <div class="stage-tag tag-progress">4 з 4 позицій</div>
-        </div>
-        <div class="hero-screen-switcher" role="group" aria-label="Екрани OrderFlow">
-          <button class="is-active" type="button" data-hero-screen-button data-screen="assets/screenshots/home.jpg" data-label="Головний екран" aria-label="Показати головний екран"></button>
-          <button type="button" data-hero-screen-button data-screen="assets/screenshots/picking.jpg" data-label="Збирання замовлення" aria-label="Показати екран збирання"></button>
-          <button type="button" data-hero-screen-button data-screen="assets/screenshots/replacement.jpg" data-label="Заміна товару" aria-label="Показати екран заміни"></button>
-          <button type="button" data-hero-screen-button data-screen="assets/screenshots/packing.jpg" data-label="Пакування" aria-label="Показати екран пакування"></button>
         </div>
       </div>
     </section>
@@ -166,7 +163,6 @@
         <div class="theater-viewer">
           <button class="theater-phone" type="button" data-theater-open aria-label="Відкрити активний екран">
             <span class="phone">
-              <span class="phone-speaker"></span>
               <img src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень" width="596" height="1280" data-theater-image>
             </span>
           </button>
@@ -265,19 +261,13 @@
     </section>
 
     <section id="journey" class="journey section-block">
-      <div class="section-shell journey-layout">
-        <div class="journey-sticky reveal">
+      <div class="section-shell">
+        <div class="journey-heading section-heading reveal">
           <p class="eyebrow">Робочий маршрут</p>
           <h2>Вісім кроків до готового замовлення.</h2>
           <p>Кожна дія продовжує попередню — весь контекст і наступний крок залишаються в одному робочому процесі.</p>
-          <div class="journey-status" aria-live="polite">
-            <span>Поточний крок</span>
-            <b data-journey-current>01 / 08</b>
-            <span data-journey-label>Оберіть замовлення</span>
-          </div>
-          <div class="journey-progress" aria-hidden="true"><span data-journey-progress></span></div>
         </div>
-        <div class="journey-track" data-journey aria-label="Вісім кроків роботи із замовленням">
+        <div class="journey-track carousel-rail" data-journey data-carousel="journey" tabindex="0" aria-label="Вісім кроків роботи із замовленням">
           <article class="journey-step is-active" data-step-kind="order"><span>01</span><div><small>Нове замовлення</small><h3>Оберіть замовлення</h3><p>Перевірте статус, магазин, кількість позицій і коментарі.</p><em>очікує</em></div></article>
           <article class="journey-step" data-step-kind="accept"><span>02</span><div><small>Призначення збиральника</small><h3>Візьміть у роботу</h3><p>Нове замовлення закріплюється за вами, активне — продовжується з поточного місця.</p><em>прийнято</em></div></article>
           <article class="journey-step" data-step-kind="scan"><span>03</span><div><small>Сканування штрихкоду</small><h3>Скануйте товари</h3><p>Використовуйте камеру, ТСД або ручний ввід; кількість і вага перевіряються окремо.</p><div class="step-barcode" aria-hidden="true"></div></div></article>
@@ -286,6 +276,14 @@
           <article class="journey-step" data-step-kind="packing"><span>06</span><div><small>Кількість пакування</small><h3>Додайте пакування</h3><p>Проскануйте пакети та контейнери або вкажіть кількість кнопками.</p><em>0 → 1</em></div></article>
           <article class="journey-step" data-step-kind="verify"><span>07</span><div><small>План і результат</small><h3>Перевірте результат</h3><p>OrderFlow покаже недобір, перебір і додані позиції перед завершенням.</p><em>4 з 4</em></div></article>
           <article class="journey-step" data-step-kind="finish"><span>08</span><div><small>Передача QR</small><h3>Покажіть код або QR</h3><p>Передайте штрихкод агрегатора кур’єру та QR замовлення касиру.</p><em>завершено</em></div></article>
+        </div>
+        <div class="carousel-console journey-console" data-carousel-controls="journey">
+          <div class="carousel-meter"><span data-carousel-progress></span></div>
+          <div class="carousel-readout"><b data-carousel-current>01</b><span>/ 08</span></div>
+          <div class="carousel-buttons">
+            <button class="carousel-button carousel-prev" type="button" data-carousel-prev aria-label="Попередній крок"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>
+            <button class="carousel-button" type="button" data-carousel-next aria-label="Наступний крок"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>
+          </div>
         </div>
       </div>
     </section>
@@ -369,15 +367,10 @@
     <section class="support section-shell">
       <div class="support-card reveal">
         <div>
-          <p class="eyebrow">Жива підтримка OrderFlow</p>
-          <h2>Готові протестувати OrderFlow на робочому пристрої?</h2>
-          <p>Завантажте APK або напишіть у DL Studio, якщо потрібна допомога з першим запуском.</p>
+          <h2>Потрібна допомога з OrderFlow?</h2>
+          <p>Опишіть питання або проблему — DL Studio допоможе розібратися з налаштуванням і робочим процесом.</p>
         </div>
         <div class="support-actions">
-          <a class="button button-primary" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>
-            <svg aria-hidden="true"><use href="assets/icons.svg#download"></use></svg>
-            <span data-download-label>Завантажити APK</span>
-          </a>
           <a class="button button-telegram" href="https://t.me/dl_studio_group" target="_blank" rel="noreferrer">
             <svg aria-hidden="true"><use href="assets/icons.svg#telegram"></use></svg>
             Написати в Telegram

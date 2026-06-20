@@ -118,6 +118,11 @@ function initFaq() {
       button.addEventListener("click", () => {
         activeCategory = category;
         chips.querySelectorAll("button").forEach((chip) => chip.classList.toggle("active", chip === button));
+        button.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "nearest",
+          inline: "center",
+        });
         renderFaq();
       });
       chips.appendChild(button);
@@ -265,7 +270,7 @@ function initReveal() {
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
   items.forEach((item, index) => {
-    item.style.transitionDelay = `${Math.min((index % 4) * 70, 210)}ms`;
+    item.style.setProperty("--reveal-delay", `${Math.min((index % 4) * 55, 165)}ms`);
     observer.observe(item);
   });
 }
@@ -300,11 +305,15 @@ function initGallery() {
     "Фіксація причини відмови й прозорий результат у замовленні.",
     "Пакети, контейнери та фінальна підготовка замовлення до видачі.",
   ];
-  let current = 0;
+  let current = -1;
   let touchStart = 0;
 
   const select = (index) => {
-    current = (index + cards.length) % cards.length;
+    const previous = current;
+    const next = (index + cards.length) % cards.length;
+    if (next === current) return;
+    current = next;
+    const direction = current >= previous ? "next" : "previous";
     const card = cards[current];
     cards.forEach((item, itemIndex) => item.classList.toggle("is-active", itemIndex === current));
     theaterIndex?.querySelectorAll("button").forEach((item, itemIndex) => {
@@ -312,12 +321,15 @@ function initGallery() {
       item.setAttribute("aria-current", itemIndex === current ? "true" : "false");
     });
     if (theaterImage) {
-      theaterImage.classList.add("is-switching");
+      theaterImage.classList.remove("is-switching-next", "is-switching-previous", "is-screen-entering-next", "is-screen-entering-previous");
+      theaterImage.classList.add(`is-switching-${direction}`);
       window.setTimeout(() => {
         theaterImage.src = card.dataset.image;
         theaterImage.alt = card.querySelector("img")?.alt || card.dataset.caption;
-        theaterImage.classList.remove("is-switching");
-      }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 140);
+        theaterImage.classList.remove("is-switching-next", "is-switching-previous");
+        theaterImage.classList.add(`is-screen-entering-${direction}`);
+        window.setTimeout(() => theaterImage.classList.remove("is-screen-entering-next", "is-screen-entering-previous"), 420);
+      }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 190);
     }
     if (theaterTitle) theaterTitle.textContent = card.dataset.caption;
     if (theaterCount) theaterCount.textContent = `${String(current + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
@@ -402,9 +414,9 @@ function initCarousels() {
         Math.abs(itemStart(item) - position) < Math.abs(itemStart(items[best]) - position) ? index : best, 0);
 
       currentLabel.textContent = String(current + 1).padStart(2, "0");
-      const ratio = items.length === 1 ? 1 : (current + 1) / items.length;
+      const ratio = Math.max(0, Math.min(1, (position + rail.clientWidth) / rail.scrollWidth));
       controls.style.setProperty("--carousel-progress", `${ratio * 100}%`);
-      progress.style.width = `${ratio * 100}%`;
+      progress.style.width = `${Math.max(7, ratio * 100)}%`;
       previous.disabled = current === 0;
       next.disabled = current === items.length - 1;
       items.forEach((item, index) => item.classList.toggle("is-active", index === current));
@@ -417,6 +429,7 @@ function initCarousels() {
 
     const goTo = (index) => {
       const target = items[Math.max(0, Math.min(items.length - 1, index))];
+      rail.dataset.direction = index >= current ? "next" : "previous";
       rail.scrollTo({
         left: itemStart(target),
         behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
@@ -601,74 +614,81 @@ function initFeedback() {
   });
 }
 
-function initJourneyTimeline() {
-  const track = document.querySelector("[data-journey]");
-  const steps = [...(track?.querySelectorAll(".journey-step") || [])];
-  const current = document.querySelector("[data-journey-current]");
-  const label = document.querySelector("[data-journey-label]");
-  const progress = document.querySelector("[data-journey-progress]");
-  if (!track || !steps.length) return;
-
-  const activate = (index) => {
-    steps.forEach((step, stepIndex) => step.classList.toggle("is-active", stepIndex === index));
-    if (current) current.textContent = `${String(index + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
-    if (label) label.textContent = steps[index].querySelector("h3")?.textContent || "";
-    if (progress) progress.style.height = `${((index + 1) / steps.length) * 100}%`;
-  };
-
-  if (!("IntersectionObserver" in window)) {
-    activate(0);
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries
-      .filter((entry) => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (!visible) return;
-    activate(steps.indexOf(visible.target));
-  }, { threshold: [0.35, 0.55, 0.75], rootMargin: "-15% 0px -35% 0px" });
-
-  steps.forEach((step) => observer.observe(step));
-  activate(0);
-}
-
 function initHeroShowcase() {
   const showcase = document.querySelector("[data-hero-showcase]");
   const image = showcase?.querySelector("[data-hero-screen]");
   const label = showcase?.querySelector("[data-hero-screen-label]");
-  const buttons = [...(showcase?.querySelectorAll("[data-hero-screen-button]") || [])];
+  const workflow = document.querySelector("[data-hero-workflow]");
+  const buttons = [...(workflow?.querySelectorAll("[data-hero-step]") || [])];
   if (!showcase || !image || !buttons.length) return;
 
   let active = 0;
   let timer;
+  let touchStart = 0;
+  let inView = true;
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const select = (index, restart = true) => {
+    const previous = active;
     active = (index + buttons.length) % buttons.length;
+    const direction = active >= previous ? "next" : "previous";
     const button = buttons[active];
     buttons.forEach((item, itemIndex) => {
       item.classList.toggle("is-active", itemIndex === active);
-      item.setAttribute("aria-pressed", String(itemIndex === active));
+      item.setAttribute("aria-selected", String(itemIndex === active));
     });
-    showcase.querySelector(".hero-phone")?.classList.add("is-switching");
+    const phone = showcase.querySelector(".hero-phone");
+    phone?.classList.remove("is-switching-next", "is-switching-previous", "is-screen-entering-next", "is-screen-entering-previous");
+    phone?.classList.add(`is-switching-${direction}`);
     window.setTimeout(() => {
       image.src = button.dataset.screen;
       image.alt = `${button.dataset.label} в OrderFlow`;
       if (label) label.textContent = button.dataset.label;
-      showcase.querySelector(".hero-phone")?.classList.remove("is-switching");
-    }, reducedMotion ? 0 : 220);
+      phone?.classList.remove("is-switching-next", "is-switching-previous");
+      phone?.classList.add(`is-screen-entering-${direction}`);
+      window.setTimeout(() => phone?.classList.remove("is-screen-entering-next", "is-screen-entering-previous"), reducedMotion ? 0 : 420);
+    }, reducedMotion ? 0 : 190);
+    workflow.scrollTo({
+      left: Math.max(0, button.offsetLeft - ((workflow.clientWidth - button.offsetWidth) / 2)),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
     if (restart) start();
   };
 
   const start = () => {
     window.clearInterval(timer);
-    if (!reducedMotion) timer = window.setInterval(() => select(active + 1, false), 4800);
+    if (!reducedMotion && inView) timer = window.setInterval(() => select(active + 1, false), 4800);
   };
 
   buttons.forEach((button, index) => button.addEventListener("click", () => select(index)));
+  workflow.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      select(active - 1);
+      buttons[(active + buttons.length) % buttons.length].focus();
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      select(active + 1);
+      buttons[active].focus();
+    }
+  });
+  workflow.addEventListener("touchstart", (event) => {
+    touchStart = event.changedTouches[0].clientX;
+  }, { passive: true });
+  workflow.addEventListener("touchend", (event) => {
+    const distance = event.changedTouches[0].clientX - touchStart;
+    if (Math.abs(distance) > 42) select(active + (distance < 0 ? 1 : -1));
+  }, { passive: true });
   showcase.addEventListener("mouseenter", () => window.clearInterval(timer));
   showcase.addEventListener("mouseleave", start);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      if (inView) start();
+      else window.clearInterval(timer);
+    }, { threshold: 0.2 }).observe(showcase);
+  }
   select(0);
 }
 
@@ -693,7 +713,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initGallery();
   initCarousels();
   initOperationalEffects();
-  initJourneyTimeline();
   initFeedback();
   initHeroShowcase();
   initScrollTop();
