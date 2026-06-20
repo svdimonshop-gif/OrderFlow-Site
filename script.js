@@ -82,7 +82,8 @@ function initFaq() {
   const search = document.querySelector("[data-faq-search]");
   const empty = document.querySelector("[data-faq-empty]");
   const summary = document.querySelector("[data-faq-summary]");
-  if (!list || !chips || !search) return;
+  if (!list) return;
+  const limit = Number(list.dataset.faqLimit || 0);
   const placeholderExamples = [
     "Наприклад: копіювати артикул",
     "Наприклад: змінити кількість",
@@ -108,26 +109,29 @@ function initFaq() {
     }, 3200);
   };
 
-  categoryOrder.forEach((category) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `category-chip${category === activeCategory ? " active" : ""}`;
-    button.textContent = category;
-    button.addEventListener("click", () => {
-      activeCategory = category;
-      chips.querySelectorAll("button").forEach((chip) => chip.classList.toggle("active", chip === button));
-      renderFaq();
+  if (chips) {
+    categoryOrder.forEach((category) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `category-chip${category === activeCategory ? " active" : ""}`;
+      button.textContent = category;
+      button.addEventListener("click", () => {
+        activeCategory = category;
+        chips.querySelectorAll("button").forEach((chip) => chip.classList.toggle("active", chip === button));
+        renderFaq();
+      });
+      chips.appendChild(button);
     });
-    chips.appendChild(button);
-  });
+  }
 
   function renderFaq() {
-    const query = normalize(search.value.trim());
-    const filtered = faqEntries.filter((item) => {
+    const query = search ? normalize(search.value.trim()) : "";
+    let filtered = faqEntries.filter((item) => {
       const categoryMatch = activeCategory === "Усі" || item.category === activeCategory;
       const contentMatch = !query || normalize(`${item.question} ${item.answer} ${item.category}`).includes(query);
       return categoryMatch && contentMatch;
     });
+    if (limit) filtered = filtered.slice(0, limit);
 
     list.innerHTML = filtered.map((item, index) => `
       <article class="faq-item">
@@ -144,29 +148,31 @@ function initFaq() {
       });
     });
 
-    summary.textContent = `Знайдено: ${filtered.length} ${filtered.length === 1 ? "відповідь" : "відповідей"}`;
-    empty.hidden = filtered.length !== 0;
+    if (summary) summary.textContent = `Знайдено: ${filtered.length} ${filtered.length === 1 ? "відповідь" : "відповідей"}`;
+    if (empty) empty.hidden = filtered.length !== 0;
   }
 
-  search.addEventListener("focus", stopPlaceholderRotation);
-  search.addEventListener("blur", startPlaceholderRotation);
-  search.addEventListener("input", () => {
-    stopPlaceholderRotation();
-    renderFaq();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
-      event.preventDefault();
-      search.focus();
-    }
-    if (event.key === "Escape" && document.activeElement === search) {
-      search.value = "";
-      search.blur();
+  if (search) {
+    search.addEventListener("focus", stopPlaceholderRotation);
+    search.addEventListener("blur", startPlaceholderRotation);
+    search.addEventListener("input", () => {
+      stopPlaceholderRotation();
       renderFaq();
-    }
-  });
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        event.preventDefault();
+        search.focus();
+      }
+      if (event.key === "Escape" && document.activeElement === search) {
+        search.value = "";
+        search.blur();
+        renderFaq();
+      }
+    });
+    startPlaceholderRotation();
+  }
   renderFaq();
-  startPlaceholderRotation();
 }
 
 async function initRelease() {
@@ -184,13 +190,13 @@ async function initRelease() {
     const release = await response.json();
     const apk = release.assets?.find((asset) => asset.name.toLowerCase().endsWith(".apk"));
     const releaseVersion = release.tag_name || release.name || "Latest";
-    version.textContent = `OrderFlow ${releaseVersion}`;
+    if (version) version.textContent = `OrderFlow ${releaseVersion}`;
     labels.forEach((label) => { label.textContent = `Завантажити APK ${releaseVersion}`; });
     if (versionInput) versionInput.value = releaseVersion.replace(/^v/i, "");
     const publishedDate = release.published_at ? new Date(release.published_at) : null;
     const published = publishedDate ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(publishedDate) : "";
     const size = apk ? `${(apk.size / 1024 / 1024).toFixed(1)} МБ` : "";
-    meta.textContent = [size, published].filter(Boolean).join(" · ") || "Останній GitHub Release";
+    if (meta) meta.textContent = [size, published].filter(Boolean).join(" · ") || "Останній GitHub Release";
     if (fresh && publishedDate) {
       const ageDays = Math.max(0, Math.floor((Date.now() - publishedDate.getTime()) / 86400000));
       fresh.textContent = ageDays === 0 ? "Оновлено сьогодні" : ageDays === 1 ? "Оновлено вчора" : ageDays < 30 ? `Оновлено ${ageDays} днів тому` : "Актуальний реліз";
@@ -265,16 +271,61 @@ function initReveal() {
 }
 
 function initGallery() {
-  const cards = [...document.querySelectorAll("[data-gallery] [data-image]")];
+  const rail = document.querySelector("[data-gallery]");
+  const cards = [...(rail?.querySelectorAll("[data-image]") || [])];
   const dialog = document.querySelector("[data-lightbox]");
   if (!cards.length || !dialog) return;
   const image = dialog.querySelector("[data-lightbox-image]");
   const caption = dialog.querySelector("[data-lightbox-caption]");
+  const theater = document.querySelector("[data-interface-theater]");
+  const theaterImage = theater?.querySelector("[data-theater-image]");
+  const theaterTitle = theater?.querySelector("[data-theater-title]");
+  const theaterCount = theater?.querySelector("[data-theater-count]");
+  const theaterDescription = theater?.querySelector("[data-theater-description]");
+  const theaterIndex = theater?.querySelector("[data-theater-index]");
+  const theaterOpen = theater?.querySelector("[data-theater-open]");
+  const descriptions = [
+    "Стан замовлень, швидкий доступ до профілю, сповіщень і налаштувань.",
+    "Швидкий вхід за табельним номером і підтвердження робочого профілю.",
+    "Дані співробітника, поточний магазин і керування робочою сесією.",
+    "Тема, мова, сповіщення, підключення, пам’ять і поведінка застосунку.",
+    "Звук, вібрація, повтори та сценарії сповіщень про нові замовлення.",
+    "Основне, резервне й локальне підключення з перевіркою доступності.",
+    "Завершені замовлення, статуси та повернення власного замовлення в роботу.",
+    "Пошук історії за періодом, джерелом і станом замовлення.",
+    "Контакти, коментарі, позиції та повний контекст активного замовлення.",
+    "Таймер, прогрес, вкладки та послідовна робота з кожною позицією.",
+    "Сканування, ручний код, заміна, відмова та зміна кількості товару.",
+    "Вибір причини, перевірка нового товару та погодження заміни.",
+    "Фіксація причини відмови й прозорий результат у замовленні.",
+    "Пакети, контейнери та фінальна підготовка замовлення до видачі.",
+  ];
   let current = 0;
   let touchStart = 0;
 
-  const show = (index) => {
+  const select = (index) => {
     current = (index + cards.length) % cards.length;
+    const card = cards[current];
+    cards.forEach((item, itemIndex) => item.classList.toggle("is-active", itemIndex === current));
+    theaterIndex?.querySelectorAll("button").forEach((item, itemIndex) => {
+      item.classList.toggle("is-active", itemIndex === current);
+      item.setAttribute("aria-current", itemIndex === current ? "true" : "false");
+    });
+    if (theaterImage) {
+      theaterImage.classList.add("is-switching");
+      window.setTimeout(() => {
+        theaterImage.src = card.dataset.image;
+        theaterImage.alt = card.querySelector("img")?.alt || card.dataset.caption;
+        theaterImage.classList.remove("is-switching");
+      }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 140);
+    }
+    if (theaterTitle) theaterTitle.textContent = card.dataset.caption;
+    if (theaterCount) theaterCount.textContent = `${String(current + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
+    if (theaterDescription) theaterDescription.textContent = descriptions[current] || "";
+  };
+
+  const show = (index) => {
+    select(index);
     image.src = cards[current].dataset.image;
     image.alt = cards[current].dataset.caption;
     caption.textContent = `${current + 1} / ${cards.length} — ${cards[current].dataset.caption}`;
@@ -288,7 +339,24 @@ function initGallery() {
     dialog.close();
     document.body.classList.remove("lightbox-open");
   };
+  if (theaterIndex) {
+    cards.forEach((card, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(card.dataset.caption)}</strong>`;
+      button.addEventListener("click", () => {
+        select(index);
+        rail.scrollTo({
+          left: cards[index].offsetLeft - (Number.parseFloat(getComputedStyle(rail).paddingLeft) || 0),
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        });
+      });
+      theaterIndex.appendChild(button);
+    });
+  }
   cards.forEach((card, index) => card.addEventListener("click", () => open(index)));
+  theaterOpen?.addEventListener("click", () => open(current));
+  rail._setActiveScreen = select;
   dialog.querySelector("[data-lightbox-close]").addEventListener("click", close);
   dialog.querySelector("[data-lightbox-prev]").addEventListener("click", () => show(current - 1));
   dialog.querySelector("[data-lightbox-next]").addEventListener("click", () => show(current + 1));
@@ -303,6 +371,7 @@ function initGallery() {
     const distance = event.changedTouches[0].clientX - touchStart;
     if (Math.abs(distance) > 45) show(current + (distance < 0 ? 1 : -1));
   }, { passive: true });
+  select(0);
 }
 
 function initCarousels() {
@@ -339,6 +408,7 @@ function initCarousels() {
       previous.disabled = current === 0;
       next.disabled = current === items.length - 1;
       items.forEach((item, index) => item.classList.toggle("is-active", index === current));
+      rail._setActiveScreen?.(current);
     };
 
     const scheduleUpdate = () => {
@@ -511,11 +581,9 @@ function initFeedback() {
     const lines = [
       `OrderFlow — ${type}`,
       "",
-      `Тема: ${data.get("subject")}`,
       `Версія: ${data.get("version") || "не вказано"}`,
       rating ? `Оцінка: ${"★".repeat(Number(rating))}${"☆".repeat(5 - Number(rating))}` : "Оцінка: не вказана",
       data.get("author") ? `Автор / магазин: ${data.get("author")}` : null,
-      data.get("contact") ? `Контакт: ${data.get("contact")}` : null,
       "",
       "Повідомлення:",
       data.get("message"),
@@ -531,6 +599,38 @@ function initFeedback() {
     }
     window.location.href = telegramUrl;
   });
+}
+
+function initJourneyTimeline() {
+  const track = document.querySelector("[data-journey]");
+  const steps = [...(track?.querySelectorAll(".journey-step") || [])];
+  const current = document.querySelector("[data-journey-current]");
+  const label = document.querySelector("[data-journey-label]");
+  const progress = document.querySelector("[data-journey-progress]");
+  if (!track || !steps.length) return;
+
+  const activate = (index) => {
+    steps.forEach((step, stepIndex) => step.classList.toggle("is-active", stepIndex === index));
+    if (current) current.textContent = `${String(index + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
+    if (label) label.textContent = steps[index].querySelector("h3")?.textContent || "";
+    if (progress) progress.style.height = `${((index + 1) / steps.length) * 100}%`;
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    activate(0);
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    activate(steps.indexOf(visible.target));
+  }, { threshold: [0.35, 0.55, 0.75], rootMargin: "-15% 0px -35% 0px" });
+
+  steps.forEach((step) => observer.observe(step));
+  activate(0);
 }
 
 function initHeroShowcase() {
@@ -593,6 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initGallery();
   initCarousels();
   initOperationalEffects();
+  initJourneyTimeline();
   initFeedback();
   initHeroShowcase();
   initScrollTop();

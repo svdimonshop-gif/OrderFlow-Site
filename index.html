@@ -1,20 +1,22 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="uk">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#071015">
-  <meta name="description" content="OrderFlow — мобільний застосунок для швидкого збирання, перевірки та пакування замовлень. Інструкція, завантаження APK і підтримка.">
-  <meta property="og:title" content="OrderFlow — робочий ритм магазину">
-  <meta property="og:description" content="Завантажте OrderFlow та дізнайтеся, як пройти шлях замовлення від сканування до видачі.">
+  <meta name="description" content="OrderFlow веде збиральника від першого скану до передачі QR: замовлення, заміни, пакування, offline-first робота та швидкий старт з APK.">
+  <meta property="og:title" content="OrderFlow — мобільне робоче місце збиральника">
+  <meta property="og:description" content="Єдиний робочий маршрут: замовлення, сканування, заміни, пакування та QR-видача.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://svdimonshop-gif.github.io/OrderFlow-Site/">
   <meta property="og:image" content="https://svdimonshop-gif.github.io/OrderFlow-Site/assets/logo.png">
-  <title>OrderFlow — інструкція та завантаження</title>
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://svdimonshop-gif.github.io/OrderFlow-Site/">
+  <title>OrderFlow — мобільне робоче місце збиральника</title>
   <link rel="icon" href="assets/logo.png">
   <link rel="preload" href="assets/fonts/GoogleSans-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20260620-10">
-  <script src="script.js?v=20260620-10" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1781987192">
+  <script src="script.js?v=1781987192" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти до основного вмісту</a>
@@ -33,8 +35,9 @@
     </button>
     <nav id="site-nav" class="site-nav" aria-label="Основна навігація" data-nav>
       <a href="#features">Можливості</a>
-      <a href="#journey">Інструкція</a>
-      <a href="#knowledge">Довідка</a>
+      <a href="#screens">Інтерфейс</a>
+      <a href="#journey">Маршрут</a>
+      <a href="#security">Безпека</a>
       <a href="#feedback">Зворотний зв’язок</a>
       <a class="nav-download" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>Завантажити</a>
     </nav>
@@ -50,16 +53,16 @@
           <span class="hero-brand-word">OrderFlow</span>
           <span class="hero-brand-by">by DL Studio</span>
         </div>
-        <p class="eyebrow"><span class="pulse-dot"></span> Мобільне робоче місце збиральника</p>
+        <p class="eyebrow"><span class="pulse-dot"></span> OrderFlow by DL Studio</p>
         <h1>Замовлення рухається.<br><span>Ви керуєте ритмом.</span></h1>
-        <p class="hero-lead">OrderFlow об’єднує замовлення, сканування, заміни, пакування та видачу в один зрозумілий маршрут — навіть коли зв’язок нестабільний.</p>
+        <p class="hero-lead">Мобільний маршрут для збиральника: сканування, заміни, пакування, QR-видача та offline-first робота в одному процесі.</p>
         <div class="hero-actions">
           <a class="button button-primary download-button" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>
             <svg aria-hidden="true"><use href="assets/icons.svg#download"></use></svg>
             <span data-download-label>Завантажити APK</span>
           </a>
           <a class="button button-ghost" href="#journey">
-            Як це працює
+            Подивитися маршрут
             <svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg>
           </a>
         </div>
@@ -71,12 +74,15 @@
             <span data-release-meta>Перевіряємо GitHub Release…</span>
           </div>
         </div>
+        <div class="hero-workflow" aria-label="Основний маршрут замовлення">
+          <span>Нове</span><i></i><span>Скан</span><i></i><span>Заміна</span><i></i><span>Пакування</span><i></i><span>QR</span>
+        </div>
       </div>
 
       <div class="hero-stage reveal reveal-terminal" data-route-stage data-hero-showcase>
         <div class="hero-stage-caption" aria-hidden="true">
           <span>Застосунок у роботі</span>
-          <b data-hero-screen-label>Збирання замовлення</b>
+          <b data-hero-screen-label>Головний екран</b>
         </div>
         <div class="route-map" aria-hidden="true">
           <svg viewBox="0 0 620 620" role="presentation">
@@ -87,18 +93,20 @@
           <span class="route-node node-two">02</span>
           <span class="route-node node-three">03</span>
         </div>
-        <div class="terminal-label" aria-hidden="true">Збирання замовлення</div>
-        <div class="phone hero-phone">
-          <div class="phone-speaker"></div>
-          <img src="assets/screenshots/picking.jpg" alt="Екран збирання замовлення в OrderFlow" width="596" height="1280" data-hero-screen>
-          <div class="scan-line" aria-hidden="true"></div>
+        <div class="phone-wrapper">
+          <div class="phone hero-phone">
+            <div class="phone-speaker"></div>
+            <img src="assets/screenshots/home.jpg" alt="Головний екран OrderFlow" width="596" height="1280" data-hero-screen>
+            <div class="scan-line" aria-hidden="true"></div>
+          </div>
+          <div class="stage-tag tag-online" data-sync-indicator aria-live="polite">
+            <span></span><b data-sync-label>Офлайн</b>
+          </div>
+          <div class="stage-tag tag-progress">4 з 4 позицій</div>
         </div>
-        <div class="stage-tag tag-online" data-sync-indicator aria-live="polite">
-          <span></span><b data-sync-label>Офлайн</b>
-        </div>
-        <div class="stage-tag tag-progress">4 з 4 позицій</div>
         <div class="hero-screen-switcher" role="group" aria-label="Екрани OrderFlow">
-          <button class="is-active" type="button" data-hero-screen-button data-screen="assets/screenshots/picking.jpg" data-label="Збирання замовлення" aria-label="Показати екран збирання"></button>
+          <button class="is-active" type="button" data-hero-screen-button data-screen="assets/screenshots/home.jpg" data-label="Головний екран" aria-label="Показати головний екран"></button>
+          <button type="button" data-hero-screen-button data-screen="assets/screenshots/picking.jpg" data-label="Збирання замовлення" aria-label="Показати екран збирання"></button>
           <button type="button" data-hero-screen-button data-screen="assets/screenshots/replacement.jpg" data-label="Заміна товару" aria-label="Показати екран заміни"></button>
           <button type="button" data-hero-screen-button data-screen="assets/screenshots/packing.jpg" data-label="Пакування" aria-label="Показати екран пакування"></button>
         </div>
@@ -107,9 +115,11 @@
 
     <section class="signal-strip" aria-label="Ключові характеристики">
       <div><strong data-counter="1">1</strong><span>маршрут роботи</span></div>
+      <div><strong data-counter="14">14</strong><span>екранів застосунку</span></div>
       <div><strong data-counter="3">3</strong><span>мови інтерфейсу</span></div>
       <div><strong data-counter="2">2</strong><span>режими сканера</span></div>
       <div><strong>Offline</strong><span>готовність до слабкої мережі</span></div>
+      <div><strong>QR</strong><span>фінальна видача замовлення</span></div>
     </section>
 
     <section id="features" class="features section-shell section-block">
@@ -149,65 +159,81 @@
     <section id="screens" class="screens-section section-block">
       <div class="section-shell section-heading reveal">
         <p class="eyebrow">Інтерфейс у дії</p>
-        <h2>14 екранів.<br>Один безперервний процес.</h2>
-        <p>Натисніть на будь-який екран, щоб роздивитися деталі.</p>
+        <h2>Інтерфейс, який тримає весь процес.</h2>
+        <p>Гортайте екрани або відкрийте будь-який кадр у повноекранному режимі.</p>
       </div>
-      <div class="screen-rail carousel-rail" data-gallery data-carousel="gallery" tabindex="0" aria-label="Скріншоти OrderFlow">
+      <div class="interface-theater section-shell reveal" data-interface-theater>
+        <div class="theater-viewer">
+          <button class="theater-phone" type="button" data-theater-open aria-label="Відкрити активний екран">
+            <span class="phone">
+              <span class="phone-speaker"></span>
+              <img src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень" width="596" height="1280" data-theater-image>
+            </span>
+          </button>
+          <div class="theater-caption">
+            <span data-theater-count>01 / 14</span>
+            <h3 data-theater-title>Головний екран</h3>
+            <p data-theater-description>Стан замовлень, швидкий доступ до профілю, сповіщень і налаштувань.</p>
+          </div>
+        </div>
+        <div class="theater-index" data-theater-index aria-label="Список екранів OrderFlow"></div>
+      </div>
+      <div class="screen-rail carousel-rail section-shell" data-gallery data-carousel="gallery" tabindex="0" aria-label="Скріншоти OrderFlow">
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/home.jpg" data-caption="Головний екран">
           <span>01 / Головна</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/login.jpg" data-caption="Вхід у систему">
           <span>02 / Вхід</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/login.jpg" alt="Вхід до OrderFlow за табельним номером"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/login.jpg" alt="Вхід до OrderFlow за табельним номером" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/profile.jpg" data-caption="Профіль співробітника">
           <span>03 / Профіль</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/profile.jpg" alt="Профіль співробітника та вибір магазину"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/profile.jpg" alt="Профіль співробітника та вибір магазину" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/settings.jpg" data-caption="Налаштування застосунку">
           <span>04 / Налаштування</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/settings.jpg" alt="Тема, мова, сповіщення, підключення та пам’ять"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/settings.jpg" alt="Тема, мова, сповіщення, підключення та пам’ять" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/notifications.jpg" data-caption="Налаштування сповіщень">
           <span>05 / Сповіщення</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/notifications.jpg" alt="Налаштування сповіщень, звуку та вібрації"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/notifications.jpg" alt="Налаштування сповіщень, звуку та вібрації" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/connection.jpg" data-caption="Налаштування з’єднання">
           <span>06 / З’єднання</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/connection.jpg" alt="Резервне та локальне підключення OrderFlow"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/connection.jpg" alt="Резервне та локальне підключення OrderFlow" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/history.jpg" data-caption="Історія замовлень">
           <span>07 / Історія</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/history.jpg" alt="Список завершених замовлень"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/history.jpg" alt="Список завершених замовлень" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/history-filters.jpg" data-caption="Фільтри історії">
           <span>08 / Фільтри</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/history-filters.jpg" alt="Фільтри історії за періодом, джерелом і статусом"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/history-filters.jpg" alt="Фільтри історії за періодом, джерелом і статусом" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/order-details.jpg" data-caption="Деталі замовлення">
           <span>09 / Замовлення</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/order-details.jpg" alt="Деталі замовлення та перелік товарів"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/order-details.jpg" alt="Деталі замовлення та перелік товарів" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/picking.jpg" data-caption="Процес збирання">
           <span>10 / Збирання</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/picking.jpg" alt="Прогрес збирання і картки товарів"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/picking.jpg" alt="Прогрес збирання і картки товарів" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/product-actions.jpg" data-caption="Дії з товаром">
           <span>11 / Дії з товаром</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/product-actions.jpg" alt="Сканування, заміна, відмова і зміна кількості"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/product-actions.jpg" alt="Сканування, заміна, відмова і зміна кількості" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/replacement.jpg" data-caption="Заміна товару">
           <span>12 / Заміна</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/replacement.jpg" alt="Причина та сканування товару заміни"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/replacement.jpg" alt="Причина та сканування товару заміни" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/refusal.jpg" data-caption="Відмова від товару">
           <span>13 / Відмова</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/refusal.jpg" alt="Погодження та причина відмови від товару"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/refusal.jpg" alt="Погодження та причина відмови від товару" width="596" height="1280"></div>
         </button>
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/packing.jpg" data-caption="Пакування">
           <span>14 / Пакування</span>
-          <div class="phone"><img loading="lazy" src="assets/screenshots/packing.jpg" alt="Вибір пакетів і контейнерів"></div>
+          <div class="phone"><img loading="lazy" src="assets/screenshots/packing.jpg" alt="Вибір пакетів і контейнерів" width="596" height="1280"></div>
         </button>
       </div>
       <div class="carousel-console section-shell" data-carousel-controls="gallery">
@@ -239,57 +265,42 @@
     </section>
 
     <section id="journey" class="journey section-block">
-      <div class="section-shell journey-heading reveal">
-        <div class="section-heading">
+      <div class="section-shell journey-layout">
+        <div class="journey-sticky reveal">
           <p class="eyebrow">Робочий маршрут</p>
           <h2>Вісім кроків до готового замовлення.</h2>
+          <p>Кожна дія продовжує попередню — весь контекст і наступний крок залишаються в одному робочому процесі.</p>
+          <div class="journey-status" aria-live="polite">
+            <span>Поточний крок</span>
+            <b data-journey-current>01 / 08</b>
+            <span data-journey-label>Оберіть замовлення</span>
+          </div>
+          <div class="journey-progress" aria-hidden="true"><span data-journey-progress></span></div>
         </div>
-        <div class="journey-status" aria-hidden="true">
-          <span>Замовлення</span><b>000495913</b><span>Маршрут активний</span>
-        </div>
-      </div>
-      <div class="journey-track carousel-rail" data-journey data-carousel="journey" tabindex="0" aria-label="Вісім кроків роботи із замовленням">
-        <article class="journey-step is-active" data-step-kind="order"><span>01</span><small>Нове замовлення</small><h3>Оберіть замовлення</h3><p>Перевірте статус, магазин, кількість позицій і коментарі.</p><em>очікує</em></article>
-        <article class="journey-step" data-step-kind="accept"><span>02</span><small>Призначення збиральника</small><h3>Візьміть у роботу</h3><p>Нове замовлення закріплюється за вами, активне — продовжується з поточного місця.</p><em>прийнято</em></article>
-        <article class="journey-step" data-step-kind="scan"><span>03</span><small>Сканування штрихкоду</small><h3>Скануйте товари</h3><p>Використовуйте камеру, ТСД або ручний ввід; кількість і вага перевіряються окремо.</p><div class="step-barcode" aria-hidden="true"></div></article>
-        <article class="journey-step" data-step-kind="replace"><span>04</span><small>Вирішення розбіжностей</small><h3>Вирішіть розбіжності</h3><p>Уточніть кількість, зробіть заміну або зафіксуйте відмову з причиною.</p><em>заміна / відмова</em></article>
-        <article class="journey-step" data-step-kind="contact"><span>05</span><small>Зв’язок із клієнтом</small><h3>Зв’яжіться з клієнтом</h3><p>Телефон, Telegram, Viber, WhatsApp або SMS доступні з картки замовлення.</p><em>погодження</em></article>
-        <article class="journey-step" data-step-kind="packing"><span>06</span><small>Кількість пакування</small><h3>Додайте пакування</h3><p>Проскануйте пакети та контейнери або вкажіть кількість кнопками.</p><em>0 → 1</em></article>
-        <article class="journey-step" data-step-kind="verify"><span>07</span><small>План і результат</small><h3>Перевірте результат</h3><p>OrderFlow покаже недобір, перебір і додані позиції перед завершенням.</p><em>4 з 4</em></article>
-        <article class="journey-step" data-step-kind="finish"><span>08</span><small>Передача QR</small><h3>Покажіть код або QR</h3><p>Передайте штрихкод агрегатора кур’єру та QR замовлення касиру.</p><em>завершено</em></article>
-      </div>
-      <div class="carousel-console section-shell journey-console" data-carousel-controls="journey">
-        <div class="carousel-meter"><span data-carousel-progress></span></div>
-        <div class="carousel-readout"><b data-carousel-current>01</b><span>/ 08</span></div>
-        <p>Перетягування · свайп · колесо · ← →</p>
-        <div class="carousel-buttons">
-          <button class="carousel-button carousel-prev" type="button" data-carousel-prev aria-label="Попередній крок"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>
-          <button class="carousel-button" type="button" data-carousel-next aria-label="Наступний крок"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>
+        <div class="journey-track" data-journey aria-label="Вісім кроків роботи із замовленням">
+          <article class="journey-step is-active" data-step-kind="order"><span>01</span><div><small>Нове замовлення</small><h3>Оберіть замовлення</h3><p>Перевірте статус, магазин, кількість позицій і коментарі.</p><em>очікує</em></div></article>
+          <article class="journey-step" data-step-kind="accept"><span>02</span><div><small>Призначення збиральника</small><h3>Візьміть у роботу</h3><p>Нове замовлення закріплюється за вами, активне — продовжується з поточного місця.</p><em>прийнято</em></div></article>
+          <article class="journey-step" data-step-kind="scan"><span>03</span><div><small>Сканування штрихкоду</small><h3>Скануйте товари</h3><p>Використовуйте камеру, ТСД або ручний ввід; кількість і вага перевіряються окремо.</p><div class="step-barcode" aria-hidden="true"></div></div></article>
+          <article class="journey-step" data-step-kind="replace"><span>04</span><div><small>Вирішення розбіжностей</small><h3>Вирішіть розбіжності</h3><p>Уточніть кількість, зробіть заміну або зафіксуйте відмову з причиною.</p><em>заміна / відмова</em></div></article>
+          <article class="journey-step" data-step-kind="contact"><span>05</span><div><small>Зв’язок із клієнтом</small><h3>Зв’яжіться з клієнтом</h3><p>Телефон, Telegram, Viber, WhatsApp або SMS доступні з картки замовлення.</p><em>погодження</em></div></article>
+          <article class="journey-step" data-step-kind="packing"><span>06</span><div><small>Кількість пакування</small><h3>Додайте пакування</h3><p>Проскануйте пакети та контейнери або вкажіть кількість кнопками.</p><em>0 → 1</em></div></article>
+          <article class="journey-step" data-step-kind="verify"><span>07</span><div><small>План і результат</small><h3>Перевірте результат</h3><p>OrderFlow покаже недобір, перебір і додані позиції перед завершенням.</p><em>4 з 4</em></div></article>
+          <article class="journey-step" data-step-kind="finish"><span>08</span><div><small>Передача QR</small><h3>Покажіть код або QR</h3><p>Передайте штрихкод агрегатора кур’єру та QR замовлення касиру.</p><em>завершено</em></div></article>
         </div>
       </div>
     </section>
 
-    <section id="knowledge" class="knowledge section-shell section-block">
+    <section id="knowledge" class="knowledge knowledge-preview section-shell section-block">
       <div class="section-heading reveal">
-        <p class="eyebrow">Довідка без пошуків у чатах</p>
-        <h2>Усе, що вміє OrderFlow.</h2>
+        <p class="eyebrow">Коротко про головне</p>
+        <h2>Основні питання перед початком роботи.</h2>
+        <p>Встановлення, перший вхід, сканування, offline-режим і оновлення застосунку.</p>
       </div>
-      <div class="knowledge-tools reveal">
-        <label class="search-field">
-          <svg aria-hidden="true"><use href="assets/icons.svg#search"></use></svg>
-          <span class="sr-only">Пошук у довідці</span>
-          <input type="search" placeholder="Наприклад: копіювати артикул" data-faq-search data-faq-placeholder>
-          <kbd>/</kbd>
-        </label>
-        <div class="category-chips" data-faq-categories aria-label="Категорії довідки"></div>
-      </div>
-      <div class="faq-summary" data-faq-summary aria-live="polite"></div>
-      <div class="faq-list" data-faq-list></div>
-      <div class="faq-empty" data-faq-empty hidden>
-        <h3>Такої підказки ще немає</h3>
-        <p>Напишіть у підтримку — відповідь допоможе доповнити довідку.</p>
-        <a href="https://t.me/dl_studio_group" target="_blank" rel="noreferrer">Запитати в Telegram</a>
-      </div>
+      <div class="faq-list reveal" data-faq-list data-faq-limit="6"></div>
+      <a class="button button-ghost knowledge-more" href="faq.html">
+        Відкрити всю довідку
+        <svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg>
+      </a>
     </section>
 
     <section id="feedback" class="feedback section-block">
@@ -297,7 +308,7 @@
         <div class="feedback-copy reveal">
           <p class="eyebrow">Впливайте на наступну версію</p>
           <h2>OrderFlow стає кращим від конкретних деталей.</h2>
-          <p>Опишіть, що працює добре, чого не вистачає або де виникла проблема. Після натискання відкриється <strong>@dl_studio_group</strong> із готовим текстом — залишиться лише надіслати.</p>
+          <p>Опишіть, що працює добре, чого не вистачає або де виникла проблема. Після натискання Telegram відкриється з готовим текстом — залишиться лише надіслати.</p>
           <div class="feedback-note">
             <svg aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg>
             <span>Форма не відправляє дані на сторонній сервер і не зберігає їх на сайті.</span>
@@ -306,9 +317,10 @@
         <form class="feedback-form reveal" data-feedback-form>
           <fieldset class="type-picker">
             <legend>Тип звернення</legend>
-            <label><input type="radio" name="type" value="Відгук" checked><span>Відгук</span></label>
-            <label><input type="radio" name="type" value="Пропозиція"><span>Пропозиція</span></label>
-            <label><input type="radio" name="type" value="Проблема"><span>Проблема</span></label>
+            <label><input type="radio" name="type" value="Помилка" checked><span>Помилка</span></label>
+            <label><input type="radio" name="type" value="Ідея"><span>Ідея</span></label>
+            <label><input type="radio" name="type" value="Питання"><span>Питання</span></label>
+            <label><input type="radio" name="type" value="Покращення"><span>Покращення</span></label>
           </fieldset>
           <fieldset class="rating-picker">
             <legend>Оцінка</legend>
@@ -324,31 +336,23 @@
             <label>Версія
               <input name="version" type="text" placeholder="Наприклад, 2.7.2" data-feedback-version>
             </label>
-            <label>Тема
-              <input name="subject" type="text" required maxlength="100" placeholder="Коротко про головне">
+            <label>Ім’я або магазин <span>необов’язково</span>
+              <input name="author" type="text" maxlength="80" placeholder="Щоб уточнити контекст">
             </label>
           </div>
           <label>Повідомлення
             <textarea name="message" required maxlength="1500" rows="6" placeholder="Що сталося? Який результат очікували? Як це можна покращити?"></textarea>
           </label>
-          <div class="form-row">
-            <label>Ім’я або магазин <span>необов’язково</span>
-              <input name="author" type="text" maxlength="80" placeholder="Щоб уточнити контекст">
-            </label>
-            <label>Контакт для відповіді <span>необов’язково</span>
-              <input name="contact" type="text" maxlength="100" placeholder="@username або телефон">
-            </label>
-          </div>
           <button class="button button-primary button-full" type="submit">
             <svg aria-hidden="true"><use href="assets/icons.svg#telegram"></use></svg>
-            Продовжити в Telegram
+            Надіслати в Telegram
           </button>
           <p class="form-status" data-feedback-status aria-live="polite"></p>
         </form>
       </div>
     </section>
 
-    <section class="security section-shell section-block">
+    <section id="security" class="security section-shell section-block">
       <div class="security-card reveal">
         <p class="eyebrow">Безпека та дозволи</p>
         <h2>Тільки те, що потрібно для роботи.</h2>
@@ -356,6 +360,7 @@
           <article><svg aria-hidden="true"><use href="assets/icons.svg#camera"></use></svg><h3>Камера</h3><p>Використовується лише для сканування штрихкодів і QR-конфігурації.</p></article>
           <article><svg aria-hidden="true"><use href="assets/icons.svg#bell"></use></svg><h3>Сповіщення</h3><p>Допомагають одразу побачити нове замовлення та стан синхронізації.</p></article>
           <article><svg aria-hidden="true"><use href="assets/icons.svg#database"></use></svg><h3>Локальні дані</h3><p>Операційні дані зберігаються на пристрої для стабільної offline-first роботи.</p></article>
+          <article><svg aria-hidden="true"><use href="assets/icons.svg#cloud"></use></svg><h3>Мережа</h3><p>З’єднання використовується лише для корпоративної синхронізації та перевірки оновлень.</p></article>
         </div>
         <a class="text-link" href="privacy.html">Прочитати політику конфіденційності <span>→</span></a>
       </div>
@@ -365,13 +370,19 @@
       <div class="support-card reveal">
         <div>
           <p class="eyebrow">Жива підтримка OrderFlow</p>
-          <h2>Потрібна допомога? Напишіть у DL Studio</h2>
-          <p class="support-handle">@dl_studio_group</p>
+          <h2>Готові протестувати OrderFlow на робочому пристрої?</h2>
+          <p>Завантажте APK або напишіть у DL Studio, якщо потрібна допомога з першим запуском.</p>
         </div>
-        <a class="button button-telegram" href="https://t.me/dl_studio_group" target="_blank" rel="noreferrer">
-          <svg aria-hidden="true"><use href="assets/icons.svg#telegram"></use></svg>
-          Написати в Telegram
-        </a>
+        <div class="support-actions">
+          <a class="button button-primary" href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/download/v2.7.2/OrderFlow-v2.7.2.apk" data-download-link>
+            <svg aria-hidden="true"><use href="assets/icons.svg#download"></use></svg>
+            <span data-download-label>Завантажити APK</span>
+          </a>
+          <a class="button button-telegram" href="https://t.me/dl_studio_group" target="_blank" rel="noreferrer">
+            <svg aria-hidden="true"><use href="assets/icons.svg#telegram"></use></svg>
+            Написати в Telegram
+          </a>
+        </div>
       </div>
     </section>
   </main>
@@ -382,7 +393,7 @@
       <div><strong>OrderFlow</strong><span>Розроблено DL Studio</span></div>
     </div>
     <div class="footer-links">
-      <a href="#knowledge">Довідка</a>
+      <a href="faq.html">Довідка</a>
       <a href="privacy.html">Конфіденційність</a>
       <a href="https://github.com/svdimonshop-gif/OrderFlow-Site/releases/latest">GitHub Releases</a>
       <a href="https://t.me/dl_studio_group">Telegram</a>
@@ -404,7 +415,7 @@
       <svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg>
     </button>
     <figure>
-      <img data-lightbox-image alt="">
+      <img data-lightbox-image alt="" width="596" height="1280">
       <figcaption data-lightbox-caption></figcaption>
     </figure>
     <button class="lightbox-nav lightbox-next icon-button" type="button" data-lightbox-next>
