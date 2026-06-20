@@ -1,5 +1,5 @@
 const repo = "svdimonshop-gif/OrderFlow-Site";
-const releaseFallback = `https://github.com/${repo}/releases/latest`;
+const releaseFallback = `https://github.com/${repo}/releases/download/v2.7.2/OrderFlow-v2.7.2.apk`;
 
 async function initIconSprite() {
   const uses = [...document.querySelectorAll("svg use[href*='icons.svg#']")];
