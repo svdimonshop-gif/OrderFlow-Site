@@ -3006,7 +3006,7 @@ kbd,
   }
 
   .screen-card {
-    flex: 0 0 calc(100% + 18px);
+    flex: 0 0 calc(100% + 19px);
     max-width: none;
   }
 
@@ -3016,7 +3016,7 @@ kbd,
   }
 
   .journey-step {
-    flex: 0 0 calc(100% + 18px);
+    flex: 0 0 calc(100% + 19px);
     min-height: 0;
     height: 310px;
     padding: 24px;
@@ -3312,7 +3312,7 @@ kbd,
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 369px) {
   :root {
     --gutter: 16px;
   }
@@ -3323,7 +3323,7 @@ kbd,
 
   .screen-card,
   .journey-step {
-    flex-basis: calc(100% + 5px);
+    flex-basis: calc(100% + 6px);
   }
 
   .screen-card .phone {
