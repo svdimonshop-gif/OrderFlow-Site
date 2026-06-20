@@ -2857,6 +2857,7 @@ kbd,
 
 .release-fresh,
 .release-card span,
+.release-card span:not(.release-mark),
 .route-node,
 .install-steps li > span,
 .journey-status span,
