@@ -2845,6 +2845,26 @@ kbd,
   font-size: var(--type-17);
 }
 
+.type-picker input,
+.rating-picker input {
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.release-fresh,
+.release-card span,
+.route-node,
+.install-steps li > span,
+.journey-status span,
+.site-nav a:not(.nav-download),
+.legal-header .button {
+  font-size: var(--type-16);
+}
+
 .support-card {
   min-height: 0;
   align-items: center;
