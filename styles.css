@@ -3006,7 +3006,7 @@ kbd,
   }
 
   .screen-card {
-    flex: 0 0 calc(100% + 15px);
+    flex: 0 0 calc(100% + 18px);
     max-width: none;
   }
 
@@ -3016,7 +3016,7 @@ kbd,
   }
 
   .journey-step {
-    flex: 0 0 calc(100% + 15px);
+    flex: 0 0 calc(100% + 18px);
     min-height: 0;
     height: 310px;
     padding: 24px;
@@ -3214,7 +3214,7 @@ kbd,
   }
 
   .screen-card {
-    flex-basis: calc(100% + 4px);
+    flex-basis: calc(100% + 10px);
   }
 
   .screen-card .phone {
@@ -3228,7 +3228,7 @@ kbd,
   }
 
   .journey-step {
-    flex-basis: calc(100% + 4px);
+    flex-basis: calc(100% + 10px);
     height: 300px;
     padding: 22px 20px;
   }
@@ -3352,3 +3352,7 @@ kbd,
     transform: none;
   }
 }
+  .screen-card,
+  .journey-step {
+    flex-basis: calc(100% + 5px);
+  }
