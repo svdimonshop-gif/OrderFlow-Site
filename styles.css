@@ -3312,13 +3312,18 @@ kbd,
   }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 375px) {
   :root {
     --gutter: 16px;
   }
 
   .site-header {
     width: calc(100% - 12px);
+  }
+
+  .screen-card,
+  .journey-step {
+    flex-basis: calc(100% + 5px);
   }
 
   .screen-card .phone {
@@ -3352,7 +3357,3 @@ kbd,
     transform: none;
   }
 }
-  .screen-card,
-  .journey-step {
-    flex-basis: calc(100% + 5px);
-  }
