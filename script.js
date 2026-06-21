@@ -1,5 +1,5 @@
 const repo = "svdimonshop-gif/OrderFlow-Site";
-const releaseFallback = `https://github.com/${repo}/releases/download/v2.7.2/OrderFlow-v2.7.2.apk`;
+const releaseFallback = `https://github.com/${repo}/releases/latest/download/OrderFlow.apk`;
 const screens = Array.isArray(window.ORDERFLOW_SCREENS) ? window.ORDERFLOW_SCREENS : [];
 
 function screenAsset(screen) {
@@ -228,12 +228,14 @@ async function initRelease() {
     });
     if (!response.ok) throw new Error("release unavailable");
     const release = await response.json();
-    const apk = release.assets?.find((asset) => asset.name.toLowerCase().endsWith(".apk"));
+    const apk = release.assets?.find((asset) => asset.name === "OrderFlow.apk")
+      || release.assets?.find((asset) => asset.name.toLowerCase().endsWith(".apk"));
     const releaseVersion = release.tag_name || release.name || "Latest";
     if (version) version.textContent = `OrderFlow ${releaseVersion}`;
     labels.forEach((label) => { label.textContent = `Завантажити APK ${releaseVersion}`; });
     if (versionInput) versionInput.value = releaseVersion.replace(/^v/i, "");
-    const publishedDate = release.published_at ? new Date(release.published_at) : null;
+    const publishedDateValue = apk?.updated_at || release.published_at;
+    const publishedDate = publishedDateValue ? new Date(publishedDateValue) : null;
     const published = publishedDate ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(publishedDate) : "";
     const publishedStatus = publishedDate ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(publishedDate) : "";
     const size = apk ? `${(apk.size / 1024 / 1024).toFixed(1)} МБ` : "";
@@ -244,10 +246,10 @@ async function initRelease() {
     }
     links.forEach((link) => { link.href = apk?.browser_download_url || releaseFallback; });
   } catch {
-    if (version) version.textContent = "OrderFlow v2.7.2";
+    if (version) version.textContent = "OrderFlow";
     if (meta) meta.textContent = "Пряме завантаження APK";
     if (fresh) {
-      fresh.textContent = "Версія v2.7.2 · дата недоступна";
+      fresh.textContent = "Дані Release тимчасово недоступні";
       fresh.classList.add("is-old");
     }
     links.forEach((link) => { link.href = releaseFallback; });
