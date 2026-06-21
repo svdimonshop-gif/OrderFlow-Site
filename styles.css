@@ -2201,6 +2201,8 @@ h3 {
     left: 0;
     right: 0;
     display: grid;
+    justify-items: stretch;
+    margin-left: 0;
     gap: 4px;
     max-height: 0;
     padding: 0 10px;
@@ -2224,10 +2226,12 @@ h3 {
   .site-nav a,
   .site-nav .nav-download {
     justify-content: flex-start;
+    justify-self: stretch;
     width: 100%;
     min-height: 48px;
     padding-inline: 14px;
     margin: 0;
+    text-align: left;
   }
 
   .site-nav .nav-download {
@@ -2451,22 +2455,27 @@ h3 {
   }
 
   .phone-wrapper {
-    display: grid;
-    justify-items: center;
-    gap: 10px;
+    display: block;
   }
 
   .stage-tag,
   .tag-online,
   .tag-progress {
-    position: static;
-    width: 100%;
-    justify-content: center;
-    min-height: 44px;
+    position: absolute;
+    width: auto;
+    min-height: 42px;
     padding-inline: 12px;
+    font-size: 16px;
+  }
+
+  .tag-online {
+    left: clamp(-38px, -8vw, -26px);
+    top: 28%;
   }
 
   .tag-progress {
+    right: clamp(-40px, -8vw, -28px);
+    bottom: 18%;
     border-color: rgba(255, 138, 76, 0.5);
   }
 
@@ -2524,7 +2533,12 @@ h3 {
   .screen-card > span {
     align-self: stretch;
     margin-top: 16px;
+    padding-inline: 14px;
     font-size: 16px;
+  }
+
+  .screen-card:not(.is-active) > span {
+    visibility: hidden;
   }
 
   .screen-card .phone {
@@ -2699,6 +2713,8 @@ h3 {
   }
 
   .site-nav {
+    justify-items: stretch;
+    margin-left: 0;
     max-height: calc(100dvh - 76px);
     overflow-y: auto;
   }
@@ -2766,11 +2782,13 @@ h3 {
   }
 
   .tag-online {
-    left: -54px;
+    left: -34px;
+    top: 28%;
   }
 
   .tag-progress {
-    right: -58px;
+    right: -36px;
+    bottom: 18%;
   }
 
   .signal-strip {
@@ -2846,11 +2864,11 @@ h3 {
   }
 
   .tag-online {
-    left: -32px;
+    left: -26px;
   }
 
   .tag-progress {
-    right: -38px;
+    right: -28px;
   }
 
   .type-picker label {

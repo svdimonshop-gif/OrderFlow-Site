@@ -200,19 +200,19 @@ async function initRelease() {
     if (versionInput) versionInput.value = releaseVersion.replace(/^v/i, "");
     const publishedDate = release.published_at ? new Date(release.published_at) : null;
     const published = publishedDate ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(publishedDate) : "";
+    const publishedStatus = publishedDate ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(publishedDate) : "";
     const size = apk ? `${(apk.size / 1024 / 1024).toFixed(1)} МБ` : "";
     if (meta) meta.textContent = [size, published].filter(Boolean).join(" · ") || "Останній GitHub Release";
     if (fresh && publishedDate) {
-      const ageDays = Math.max(0, Math.floor((Date.now() - publishedDate.getTime()) / 86400000));
-      fresh.textContent = ageDays === 0 ? "Оновлено сьогодні" : ageDays === 1 ? "Оновлено вчора" : ageDays < 30 ? `Оновлено ${ageDays} днів тому` : "Актуальний реліз";
-      fresh.classList.toggle("is-old", ageDays >= 30);
+      fresh.textContent = `Оновлено ${publishedStatus}`;
+      fresh.classList.remove("is-old");
     }
     links.forEach((link) => { link.href = apk?.browser_download_url || releaseFallback; });
   } catch {
     if (version) version.textContent = "OrderFlow v2.7.2";
     if (meta) meta.textContent = "Пряме завантаження APK";
     if (fresh) {
-      fresh.textContent = "Резервне посилання";
+      fresh.textContent = "Версія v2.7.2 · дата недоступна";
       fresh.classList.add("is-old");
     }
     links.forEach((link) => { link.href = releaseFallback; });
