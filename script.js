@@ -326,6 +326,8 @@ function initGallery() {
   const theaterDescription = theater?.querySelector("[data-theater-description]");
   const theaterIndex = theater?.querySelector("[data-theater-index]");
   const theaterOpen = theater?.querySelector("[data-theater-open]");
+  const theaterCaption = theater?.querySelector(".theater-caption");
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const legacyDescriptions = [
     "Стан замовлень, швидкий доступ до профілю, сповіщень і налаштувань.",
     "Швидкий вхід за табельним номером і підтвердження робочого профілю.",
@@ -371,6 +373,17 @@ function initGallery() {
     if (theaterTitle) theaterTitle.textContent = card.dataset.caption;
     if (theaterCount) theaterCount.textContent = `${String(current + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
     if (theaterDescription) theaterDescription.textContent = card.dataset.description || "";
+    if (theater && theaterCaption && !reducedMotion) {
+      theater.classList.remove("is-refreshing");
+      theaterCaption.classList.remove("is-refreshing");
+      void theater.offsetWidth;
+      theater.classList.add("is-refreshing");
+      theaterCaption.classList.add("is-refreshing");
+      window.setTimeout(() => {
+        theater.classList.remove("is-refreshing");
+        theaterCaption.classList.remove("is-refreshing");
+      }, 380);
+    }
   };
 
   const show = (index) => {
@@ -547,12 +560,29 @@ function initCarousels() {
 function initOperationalEffects() {
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const stage = document.querySelector("[data-route-stage]");
+  const signalStrip = document.querySelector(".signal-strip");
   const routeLight = stage?.querySelector(".route-light");
   const syncIndicator = document.querySelector("[data-sync-indicator]");
   const syncLabel = document.querySelector("[data-sync-label]");
   const barcodeZone = document.querySelector("[data-barcode-zone]");
   const screenCards = document.querySelectorAll(".screen-reveal");
   let syncTimer;
+
+  if (signalStrip) {
+    [...signalStrip.children].forEach((item, index) => {
+      item.style.setProperty("--signal-index", String(index));
+    });
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      signalStrip.classList.add("is-visible");
+    } else {
+      signalStrip.classList.add("is-pending");
+      new IntersectionObserver(([entry], observer) => {
+        if (!entry.isIntersecting) return;
+        signalStrip.classList.add("is-visible");
+        observer.disconnect();
+      }, { threshold: 0.28 }).observe(signalStrip);
+    }
+  }
 
   const updateRoute = () => {
     if (!stage) return;

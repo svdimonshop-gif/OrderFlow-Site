@@ -882,12 +882,33 @@ h3 {
   width: min(100% - (var(--gutter) * 2), var(--container));
   margin-inline: auto;
   border-block: 1px solid var(--line);
+  background: rgba(8, 13, 17, 0.72);
 }
 
 .signal-strip > div {
+  display: grid;
+  align-content: center;
   min-width: 0;
-  padding: 24px 20px;
+  min-height: 112px;
+  padding: 18px 20px;
   border-right: 1px solid var(--line);
+}
+
+.signal-strip.is-pending > div {
+  opacity: 0;
+  clip-path: inset(0 0 18% 0);
+  transform: translateY(8px);
+}
+
+.signal-strip.is-visible > div {
+  opacity: 1;
+  clip-path: inset(0);
+  transform: translateY(0);
+  transition:
+    opacity 320ms var(--ease),
+    clip-path 360ms var(--ease),
+    transform 320ms var(--ease);
+  transition-delay: calc(var(--signal-index, 0) * 50ms);
 }
 
 .signal-strip > div:last-child {
@@ -981,6 +1002,7 @@ h3 {
 }
 
 .interface-theater {
+  --theater-device-width: clamp(235px, 19vw, 248px);
   display: grid;
   grid-template-columns: minmax(420px, 1.15fr) minmax(320px, .85fr);
   gap: clamp(32px, 6vw, 80px);
@@ -990,18 +1012,60 @@ h3 {
 
 .theater-viewer {
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(220px, 1fr);
+  grid-template-columns: minmax(276px, 292px) minmax(220px, 1fr);
   align-items: center;
   gap: 32px;
+  min-width: 0;
 }
 
 .theater-phone {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
   width: 100%;
-  max-width: 280px;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  max-width: 292px;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(118, 151, 174, 0.18);
+  border-radius: 26px;
+  background: #0b1116;
   cursor: zoom-in;
+}
+
+.theater-phone::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(71, 192, 239, 0.08), transparent 58%),
+    #0b1116;
+}
+
+.theater-phone::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), rgba(71, 192, 239, 0.08));
+  transform: scaleX(0.16);
+  transform-origin: left;
+}
+
+.interface-theater.is-refreshing .theater-phone::after {
+  animation: theaterAccent 360ms var(--ease) both;
+}
+
+.theater-phone .phone {
+  width: var(--theater-device-width);
+  max-width: 100%;
+}
+
+.theater-caption {
+  min-width: 0;
 }
 
 .theater-caption span {
@@ -1017,6 +1081,18 @@ h3 {
 
 .theater-caption p {
   margin: 0;
+}
+
+.theater-caption.is-refreshing > * {
+  animation: theaterCaptionReveal 340ms var(--ease) both;
+}
+
+.theater-caption.is-refreshing h3 {
+  animation-delay: 45ms;
+}
+
+.theater-caption.is-refreshing p {
+  animation-delay: 90ms;
 }
 
 .theater-index {
@@ -1060,7 +1136,7 @@ h3 {
 .theater-index button:hover,
 .theater-index button.is-active {
   color: var(--text);
-  background: var(--surface);
+  background: rgba(20, 29, 36, 0.76);
   box-shadow: inset 3px 0 var(--blue);
 }
 
@@ -2119,6 +2195,34 @@ h3 {
   }
 }
 
+@keyframes theaterAccent {
+  0% {
+    transform: scaleX(0.16);
+    opacity: 0.45;
+  }
+  58% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(0.28);
+    opacity: 0.72;
+  }
+}
+
+@keyframes theaterCaptionReveal {
+  0% {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 1160px) {
   :root {
     --gutter: 32px;
@@ -2149,6 +2253,11 @@ h3 {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  .signal-strip > div {
+    min-height: 102px;
+    padding: 16px 18px;
+  }
+
   .signal-strip > div:nth-child(3) {
     border-right: 0;
   }
@@ -2158,13 +2267,18 @@ h3 {
   }
 
   .interface-theater {
+    --theater-device-width: clamp(220px, 22vw, 230px);
     grid-template-columns: minmax(0, 1.2fr) minmax(270px, .8fr);
     gap: 34px;
   }
 
   .theater-viewer {
-    grid-template-columns: minmax(220px, 260px) 1fr;
-    gap: 24px;
+    grid-template-columns: minmax(260px, 270px) minmax(190px, 1fr);
+    gap: 32px;
+  }
+
+  .theater-phone {
+    max-width: 270px;
   }
 
   .security-grid {
@@ -2494,10 +2608,14 @@ h3 {
   }
 
   .signal-strip > div {
-    min-height: 116px;
-    padding: 20px 16px;
+    min-height: 104px;
+    padding: 16px;
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
+  }
+
+  .signal-strip > div:nth-child(3) {
+    border-right: 1px solid var(--line);
   }
 
   .signal-strip > div:nth-child(2n) {
@@ -2908,5 +3026,18 @@ h3 {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+
+  .signal-strip.is-pending > div,
+  .signal-strip.is-visible > div,
+  .theater-caption.is-refreshing > * {
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+  }
+
+  .interface-theater.is-refreshing .theater-phone::after {
+    transform: scaleX(0.28);
+    opacity: 0.72;
   }
 }
