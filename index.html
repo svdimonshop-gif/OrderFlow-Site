@@ -15,8 +15,9 @@
   <title>OrderFlow — мобільне робоче місце збиральника</title>
   <link rel="icon" href="assets/logo.png">
   <link rel="preload" href="assets/fonts/GoogleSans-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=1782028397">
-  <script src="script.js?v=1782028397" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1782029924">
+  <script src="screens-manifest.js?v=1782029924" defer></script>
+  <script src="script.js?v=1782029924" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти до основного вмісту</a>
@@ -75,11 +76,13 @@
           </div>
         </div>
         <div class="hero-workflow" role="tablist" aria-label="Основний маршрут замовлення" data-hero-workflow>
-          <button class="is-active" type="button" role="tab" aria-selected="true" data-hero-step data-screen="assets/screenshots/home.jpg" data-label="Головний екран"><span>Нове</span></button>
-          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/picking.jpg" data-label="Сканування товарів"><span>Скан</span></button>
-          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/replacement.jpg" data-label="Заміна товару"><span>Заміна</span></button>
-          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/packing.jpg" data-label="Пакування"><span>Пакування</span></button>
-          <button type="button" role="tab" aria-selected="false" data-hero-step data-screen="assets/screenshots/order-details.jpg" data-label="QR та видача"><span>QR</span></button>
+          <button class="is-active" type="button" role="tab" aria-selected="true" data-hero-step data-hero-screen-id="home"><span>Нові</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="picking"><span>Скан</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="replacement"><span>Заміна</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="packing"><span>Пакування</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="order-review"><span>Кошик</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="courier-barcode"><span>ШК</span></button>
+          <button type="button" role="tab" aria-selected="false" data-hero-step data-hero-screen-id="cashier-qr"><span>QR</span></button>
         </div>
       </div>
 
@@ -112,7 +115,7 @@
 
     <section class="signal-strip" aria-label="Ключові характеристики">
       <div><strong data-counter="1">1</strong><span>маршрут роботи</span></div>
-      <div><strong data-counter="14">14</strong><span>екранів застосунку</span></div>
+      <div><strong data-counter="18">18</strong><span>екранів застосунку</span></div>
       <div><strong data-counter="3">3</strong><span>мови інтерфейсу</span></div>
       <div><strong data-counter="2">2</strong><span>режими сканера</span></div>
       <div><strong>Offline</strong><span>готовність до слабкої мережі</span></div>
@@ -163,18 +166,18 @@
         <div class="theater-viewer">
           <button class="theater-phone" type="button" data-theater-open aria-label="Відкрити активний екран">
             <span class="phone">
-              <img src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень" width="596" height="1280" data-theater-image>
+              <img src="assets/screenshots/login.jpg" alt="Вхід до OrderFlow за табельним номером" width="603" height="1280" data-theater-image>
             </span>
           </button>
           <div class="theater-caption">
-            <span data-theater-count>01 / 14</span>
-            <h3 data-theater-title>Головний екран</h3>
-            <p data-theater-description>Стан замовлень, швидкий доступ до профілю, сповіщень і налаштувань.</p>
+            <span data-theater-count>01 / 18</span>
+            <h3 data-theater-title>Вхід у систему</h3>
+            <p data-theater-description>Швидкий вхід за табельним номером і підтвердження робочого профілю.</p>
           </div>
         </div>
         <div class="theater-index" data-theater-index aria-label="Список екранів OrderFlow"></div>
       </div>
-      <div class="screen-rail carousel-rail section-shell" data-gallery data-carousel="gallery" tabindex="0" aria-label="Скріншоти OrderFlow">
+      <div class="screen-rail carousel-rail section-shell" data-gallery data-screen-manifest data-carousel="gallery" tabindex="0" aria-label="Скріншоти OrderFlow">
         <button class="screen-card screen-reveal" type="button" data-image="assets/screenshots/home.jpg" data-caption="Головний екран">
           <span>01 / Головна</span>
           <div class="phone"><img loading="lazy" src="assets/screenshots/home.jpg" alt="Головний екран зі станом замовлень" width="596" height="1280"></div>
@@ -234,7 +237,7 @@
       </div>
       <div class="carousel-console section-shell" data-carousel-controls="gallery">
         <div class="carousel-meter"><span data-carousel-progress></span></div>
-        <div class="carousel-readout"><b data-carousel-current>01</b><span>/ 14</span></div>
+        <div class="carousel-readout"><b data-carousel-current>01</b><span data-carousel-total>/ 18</span></div>
         <div class="carousel-buttons">
           <button class="carousel-button carousel-prev" type="button" data-carousel-prev aria-label="Попередній скріншот"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>
           <button class="carousel-button" type="button" data-carousel-next aria-label="Наступний скріншот"><svg aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></button>

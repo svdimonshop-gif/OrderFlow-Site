@@ -2201,7 +2201,11 @@ h3 {
     left: 0;
     right: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
     justify-items: stretch;
+    text-align: left;
+    direction: ltr;
     margin-left: 0;
     gap: 4px;
     max-height: 0;
@@ -2225,8 +2229,11 @@ h3 {
 
   .site-nav a,
   .site-nav .nav-download {
+    display: flex;
+    align-items: center;
     justify-content: flex-start;
     justify-self: stretch;
+    align-self: stretch;
     width: 100%;
     min-height: 48px;
     padding-inline: 14px;
@@ -2404,11 +2411,14 @@ h3 {
     max-width: none;
     gap: 0;
     margin-top: 22px;
+    padding-inline: 0 12px;
+    scroll-padding-inline: 0 12px;
   }
 
   .hero-workflow button {
-    flex-basis: 88px;
-    min-width: 88px;
+    flex-basis: auto;
+    min-width: 82px;
+    padding-inline: 10px;
   }
 
   .hero-stage {
@@ -2533,7 +2543,7 @@ h3 {
   .screen-card > span {
     align-self: stretch;
     margin-top: 16px;
-    padding-inline: 14px;
+    padding-inline: 16px;
     font-size: 16px;
   }
 

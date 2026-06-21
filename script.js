@@ -1,5 +1,40 @@
 const repo = "svdimonshop-gif/OrderFlow-Site";
 const releaseFallback = `https://github.com/${repo}/releases/download/v2.7.2/OrderFlow-v2.7.2.apk`;
+const screens = Array.isArray(window.ORDERFLOW_SCREENS) ? window.ORDERFLOW_SCREENS : [];
+
+function screenAsset(screen) {
+  return `assets/screenshots/${screen.file}`;
+}
+
+function renderScreenManifest() {
+  const rail = document.querySelector("[data-screen-manifest]");
+  if (!rail || !screens.length) return;
+
+  rail.innerHTML = screens.map((screen, index) => `
+    <button class="screen-card screen-reveal" type="button"
+      data-screen-id="${escapeHtml(screen.id)}"
+      data-image="${escapeHtml(screenAsset(screen))}"
+      data-caption="${escapeHtml(screen.title)}"
+      data-description="${escapeHtml(screen.description)}">
+      <span>${String(index + 1).padStart(2, "0")} / ${escapeHtml(screen.shortTitle)}</span>
+      <div class="phone">
+        <img loading="${index < 2 ? "eager" : "lazy"}"
+          src="${escapeHtml(screenAsset(screen))}"
+          alt="${escapeHtml(screen.alt)}"
+          width="${screen.width}"
+          height="${screen.height}">
+      </div>
+    </button>`).join("");
+
+  document.querySelectorAll("[data-carousel-total]").forEach((item) => {
+    item.textContent = `/ ${String(screens.length).padStart(2, "0")}`;
+  });
+
+  document.querySelectorAll("[data-counter='18']").forEach((item) => {
+    item.textContent = String(screens.length);
+    item.dataset.counter = String(screens.length);
+  });
+}
 
 async function initIconSprite() {
   const uses = [...document.querySelectorAll("svg use[href*='icons.svg#']")];
@@ -289,7 +324,7 @@ function initGallery() {
   const theaterDescription = theater?.querySelector("[data-theater-description]");
   const theaterIndex = theater?.querySelector("[data-theater-index]");
   const theaterOpen = theater?.querySelector("[data-theater-open]");
-  const descriptions = [
+  const legacyDescriptions = [
     "Стан замовлень, швидкий доступ до профілю, сповіщень і налаштувань.",
     "Швидкий вхід за табельним номером і підтвердження робочого профілю.",
     "Дані співробітника, поточний магазин і керування робочою сесією.",
@@ -333,7 +368,7 @@ function initGallery() {
     }
     if (theaterTitle) theaterTitle.textContent = card.dataset.caption;
     if (theaterCount) theaterCount.textContent = `${String(current + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
-    if (theaterDescription) theaterDescription.textContent = descriptions[current] || "";
+    if (theaterDescription) theaterDescription.textContent = card.dataset.description || "";
   };
 
   const show = (index) => {
@@ -622,6 +657,14 @@ function initHeroShowcase() {
   const buttons = [...(workflow?.querySelectorAll("[data-hero-step]") || [])];
   if (!showcase || !image || !buttons.length) return;
 
+  const screenById = new Map(screens.map((screen) => [screen.id, screen]));
+  buttons.forEach((button) => {
+    const screen = screenById.get(button.dataset.heroScreenId);
+    if (!screen) return;
+    button.dataset.screen = screenAsset(screen);
+    button.dataset.label = screen.title;
+  });
+
   let active = 0;
   let timer;
   let touchStart = 0;
@@ -710,6 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initRelease();
   initFaq();
   initReveal();
+  renderScreenManifest();
   initGallery();
   initCarousels();
   initOperationalEffects();
