@@ -1,0 +1,20 @@
+export const screens = [
+  { file: "login.jpg" },
+  { file: "store-selection.jpg" },
+  { file: "home.jpg" },
+  { file: "profile.jpg" },
+  { file: "settings.jpg" },
+  { file: "notifications.jpg" },
+  { file: "connection.jpg" },
+  { file: "history.jpg" },
+  { file: "history-filters.jpg" },
+  { file: "order-details.jpg" },
+  { file: "picking.jpg" },
+  { file: "product-actions.jpg" },
+  { file: "replacement.jpg" },
+  { file: "refusal.jpg" },
+  { file: "packing.jpg" },
+  { file: "order-review.jpg" },
+  { file: "courier-barcode.jpg" },
+  { file: "cashier-qr.jpg" }
+];

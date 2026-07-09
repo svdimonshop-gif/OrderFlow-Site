@@ -1,7 +1,31 @@
-# OrderFlow Site
+# OrderFlow-Site
 
-Public landing page, user guide and APK release page for OrderFlow.
+Premium landing for OrderFlow, published with GitHub Pages.
 
-The application source code is stored separately in a private repository.
+## Development
 
-Website: https://svdimonshop-gif.github.io/OrderFlow-Site/
+```powershell
+npm install
+npm run dev
+```
+
+## Static build
+
+```powershell
+npm run validate:assets
+npm run build
+```
+
+The exported site is generated into `out/`.
+
+## APK release contract
+
+The APK publishing scripts stay in the OrderFlow app repository:
+
+```powershell
+.\tools\build_and_publish_release.ps1
+.\tools\publish_release_apk.ps1
+.\tools\publish_release_apk.ps1 -WhatIf
+```
+
+This site reads the latest GitHub Release from `svdimonshop-gif/OrderFlow-Site` and downloads the stable asset `OrderFlow.apk`.
