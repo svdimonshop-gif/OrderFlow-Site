@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,6 +10,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   ClipboardCheck,
   Download,
   Languages,
@@ -82,12 +83,17 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const [feedbackType, setFeedbackType] = useState(0);
   const [rating, setRating] = useState(5);
   const [message, setMessage] = useState("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const heroPhoneRef = useRef<HTMLDivElement>(null);
   const theaterRef = useRef<HTMLDivElement>(null);
+  const mobileScreensRef = useRef<HTMLDivElement>(null);
   const routeRef = useRef<HTMLDivElement>(null);
   const stageTouch = useRef<{ x: number; y: number } | null>(null);
+  const screenSwipe = useRef<{ x: number; y: number } | null>(null);
+  const didScreenSwipe = useRef(false);
+  const lightboxSwipe = useRef<{ x: number; y: number } | null>(null);
   const t = copy[lang];
 
   const activeStageData = heroStages[activeStage];
@@ -110,6 +116,13 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     document.documentElement.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("orderflow-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const updateScrollTop = () => setShowScrollTop(window.scrollY > 520);
+    updateScrollTop();
+    window.addEventListener("scroll", updateScrollTop, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollTop);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -185,6 +198,25 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }, [activeScreen, reducedMotion]);
 
   useEffect(() => {
+    const rail = mobileScreensRef.current;
+    const item = rail?.querySelector<HTMLElement>(`[data-screen-index="${activeScreen}"]`);
+    if (!rail || !item) return;
+    const target = item.offsetLeft - (rail.clientWidth - item.clientWidth) / 2;
+    rail.scrollTo({ left: Math.max(0, target), behavior: reducedMotion ? "auto" : "smooth" });
+  }, [activeScreen, reducedMotion]);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightbox(null);
+      if (event.key === "ArrowLeft") setLightbox((value) => ((value ?? 0) - 1 + screens.length) % screens.length);
+      if (event.key === "ArrowRight") setLightbox((value) => ((value ?? 0) + 1) % screens.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
+
+  useEffect(() => {
     const rail = routeRef.current;
     const item = rail?.querySelector<HTMLElement>(`[data-stage-index="${activeStage}"]`);
     if (!rail || !item) return;
@@ -219,6 +251,44 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     setActiveScreen((current) => (current + direction + screens.length) % screens.length);
   }
 
+  function handleMobileScreensScroll() {
+    const rail = mobileScreensRef.current;
+    if (!rail) return;
+    const center = rail.scrollLeft + rail.clientWidth / 2;
+    let nearest = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    rail.querySelectorAll<HTMLElement>("[data-screen-index]").forEach((item) => {
+      const itemCenter = item.offsetLeft + item.clientWidth / 2;
+      const nextDistance = Math.abs(itemCenter - center);
+      if (nextDistance < distance) {
+        distance = nextDistance;
+        nearest = Number(item.dataset.screenIndex || 0);
+      }
+    });
+    setActiveScreen((current) => (current === nearest ? current : nearest));
+  }
+
+  function handleScreenSwipeEnd(event: PointerEvent<HTMLDivElement>) {
+    if (!screenSwipe.current) return;
+    const dx = event.clientX - screenSwipe.current.x;
+    const dy = event.clientY - screenSwipe.current.y;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) {
+      didScreenSwipe.current = true;
+      nextScreen(dx < 0 ? 1 : -1);
+    }
+    screenSwipe.current = null;
+  }
+
+  function handleLightboxSwipeEnd(event: PointerEvent<HTMLDivElement>) {
+    if (!lightboxSwipe.current) return;
+    const dx = event.clientX - lightboxSwipe.current.x;
+    const dy = event.clientY - lightboxSwipe.current.y;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) {
+      setLightbox((value) => ((value ?? 0) + (dx < 0 ? 1 : -1) + screens.length) % screens.length);
+    }
+    lightboxSwipe.current = null;
+  }
+
   function openTelegram() {
     const text = [
       "OrderFlow feedback",
@@ -228,6 +298,19 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
       `Сообщение: ${message || "—"}`
     ].join("\n");
     window.open(`${telegramUrl}?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  }
+
+  function renderScrollTop() {
+    return (
+      <button
+        className={cx("scroll-top", showScrollTop && "is-visible")}
+        type="button"
+        aria-label={lang === "ru" ? "Наверх" : "Нагору"}
+        onClick={() => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" })}
+      >
+        <ChevronUp size={22} />
+      </button>
+    );
   }
 
   function renderHeader() {
@@ -310,6 +393,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             full
           />
         </main>
+        {renderScrollTop()}
       </div>
     );
   }
@@ -343,6 +427,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             ))}
           </div>
         </main>
+        {renderScrollTop()}
       </div>
     );
   }
@@ -465,6 +550,38 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                   <ChevronRight />
                 </button>
               </div>
+            </div>
+            <div
+              className="mobile-screen-carousel"
+              ref={mobileScreensRef}
+              onScroll={handleMobileScreensScroll}
+              onPointerDown={(event) => {
+                didScreenSwipe.current = false;
+                screenSwipe.current = { x: event.clientX, y: event.clientY };
+              }}
+              onPointerUp={handleScreenSwipeEnd}
+              onPointerCancel={() => { screenSwipe.current = null; }}
+            >
+              {screens.map((screen, index) => (
+                <button
+                  key={screen.id}
+                  data-screen-index={index}
+                  className="mobile-screen-card"
+                  onClick={() => {
+                    if (didScreenSwipe.current) {
+                      didScreenSwipe.current = false;
+                      return;
+                    }
+                    setLightbox(index);
+                  }}
+                  aria-label={screen.title[lang]}
+                >
+                  <PhoneFrame screenId={screen.id} lang={lang} />
+                  <span>
+                    {String(index + 1).padStart(2, "0")} / {screen.shortTitle[lang]}
+                  </span>
+                </button>
+              ))}
             </div>
             <div className="screen-list" aria-label="Screens">
               {screens.map((screen, index) => (
@@ -604,20 +721,33 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
         </section>
       </main>
       <Footer lang={lang} />
+      {renderScrollTop()}
       {lightbox !== null && (
-        <div className="lightbox" role="dialog" aria-modal="true">
+        <div
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          onPointerDown={(event) => { lightboxSwipe.current = { x: event.clientX, y: event.clientY }; }}
+          onPointerUp={handleLightboxSwipeEnd}
+          onPointerCancel={() => { lightboxSwipe.current = null; }}
+        >
           <button className="icon-btn close" onClick={() => setLightbox(null)} aria-label="Close">
             <X />
           </button>
           <button className="icon-btn left" onClick={() => setLightbox((value) => ((value ?? 0) - 1 + screens.length) % screens.length)} aria-label="Previous">
             <ChevronLeft />
           </button>
-          <img
-            src={asset(`/assets/screenshots/${screens[lightbox].file}`)}
-            width={screens[lightbox].width}
-            height={screens[lightbox].height}
-            alt={screens[lightbox].alt[lang]}
-          />
+          <div className="lightbox-content">
+            <img
+              src={asset(`/assets/screenshots/${screens[lightbox].file}`)}
+              width={screens[lightbox].width}
+              height={screens[lightbox].height}
+              alt={screens[lightbox].alt[lang]}
+            />
+            <p className="lightbox-caption">
+              {String(lightbox + 1).padStart(2, "0")} / {screens[lightbox].title[lang]}
+            </p>
+          </div>
           <button className="icon-btn right" onClick={() => setLightbox((value) => ((value ?? 0) + 1) % screens.length)} aria-label="Next">
             <ChevronRight />
           </button>
@@ -722,7 +852,18 @@ function FaqBlock({
           </label>
           <div className="category-rail">
             {faqCategories.map(([id, label]) => (
-              <button key={id} className={cx(faqCategory === id && "is-active")} onClick={() => setFaqCategory(id)}>
+              <button
+                key={id}
+                className={cx(faqCategory === id && "is-active")}
+                onClick={(event) => {
+                  setFaqCategory(id);
+                  const button = event.currentTarget;
+                  const rail = button.parentElement;
+                  if (!rail) return;
+                  const target = button.offsetLeft - (rail.clientWidth - button.clientWidth) / 2;
+                  rail.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+                }}
+              >
                 {label[lang]}
               </button>
             ))}

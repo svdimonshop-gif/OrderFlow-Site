@@ -252,12 +252,12 @@ export const screens: AppScreen[] = [
   {
     id: "courier-barcode",
     file: "courier-barcode.jpg",
-    title: { ru: "Штрихкод для курьера", ua: "Штрихкод для кур’єра" },
+    title: { ru: "Штрихкод для кассы", ua: "Штрихкод для каси" },
     shortTitle: { ru: "Штрихкод", ua: "Штрихкод" },
-    alt: { ru: "Штрихкод агрегатора для передачи заказа курьеру", ua: "Штрихкод агрегатора для передачі замовлення кур’єру" },
+    alt: { ru: "Штрихкод заказа для кассы", ua: "Штрихкод замовлення для каси" },
     description: {
-      ru: "Штрихкод агрегатора для передачи заказа курьеру в полноэкранном режиме.",
-      ua: "Штрихкод агрегатора для передачі замовлення кур’єру з повноекранним режимом."
+      ru: "Штрихкод заказа для сканирования на кассе.",
+      ua: "Штрихкод замовлення для сканування на касі."
     },
     width: 604,
     height: 1280,
@@ -290,7 +290,7 @@ export const heroStages: Array<{
   { id: "replacement", label: { ru: "Замена", ua: "Заміна" }, status: { ru: "Согласование", ua: "Погодження" }, screen: "replacement" },
   { id: "packing", label: { ru: "Упаковка", ua: "Пакування" }, status: { ru: "Контейнеры", ua: "Контейнери" }, screen: "packing" },
   { id: "cart", label: { ru: "Корзина", ua: "Кошик" }, status: { ru: "Проверка", ua: "Перевірка" }, screen: "order-review" },
-  { id: "barcode", label: { ru: "ШК", ua: "ШК" }, status: { ru: "Курьер", ua: "Кур’єр" }, screen: "courier-barcode" },
+  { id: "barcode", label: { ru: "ШК", ua: "ШК" }, status: { ru: "Касса", ua: "Каса" }, screen: "courier-barcode" },
   { id: "qr", label: { ru: "QR", ua: "QR" }, status: { ru: "Касса", ua: "Каса" }, screen: "cashier-qr" }
 ];
 
