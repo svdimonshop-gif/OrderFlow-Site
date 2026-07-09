@@ -29,13 +29,14 @@ import {
   Zap
 } from "lucide-react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { copy, faqCategories, faqItems, languages, type Lang } from "@/data/content";
 import { heroStages, screenById, screens } from "@/data/screens";
 import type { ScreenId } from "@/data/screens";
 import { asset, cx, formatBytes, formatDate, releaseFallback, releasePage, repo, telegramUrl } from "@/lib/utils";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 type PageKind = "home" | "faq" | "privacy";
 
@@ -84,6 +85,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const [rating, setRating] = useState(5);
   const [message, setMessage] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const heroPhoneRef = useRef<HTMLDivElement>(null);
@@ -94,6 +96,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const screenSwipe = useRef<{ x: number; y: number } | null>(null);
   const didScreenSwipe = useRef(false);
   const lightboxSwipe = useRef<{ x: number; y: number } | null>(null);
+  const lastScrollY = useRef(0);
   const t = copy[lang];
 
   const activeStageData = heroStages[activeStage];
@@ -118,10 +121,15 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }, [theme]);
 
   useEffect(() => {
-    const updateScrollTop = () => setShowScrollTop(window.scrollY > 520);
-    updateScrollTop();
-    window.addEventListener("scroll", updateScrollTop, { passive: true });
-    return () => window.removeEventListener("scroll", updateScrollTop);
+    const updateScrollState = () => {
+      const nextY = window.scrollY;
+      setShowScrollTop(nextY > 520);
+      setHeaderHidden(nextY > 120 && nextY > lastScrollY.current + 8);
+      lastScrollY.current = nextY;
+    };
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollState);
   }, []);
 
   useEffect(() => {
@@ -162,19 +170,20 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   useGSAP(
     () => {
       if (reducedMotion) return;
-      gsap.fromTo(
-        ".reveal",
-        { y: 18, opacity: 0, clipPath: "inset(0 0 24% 0)" },
-        {
-          y: 0,
-          opacity: 1,
-          clipPath: "inset(0 0 0% 0)",
-          duration: 0.7,
-          stagger: 0.06,
-          ease: "power3.out",
-          scrollTrigger: undefined
-        }
-      );
+      gsap.utils.toArray<HTMLElement>(".reveal").forEach((element) => {
+        gsap.fromTo(
+          element,
+          { y: 18, opacity: 0, clipPath: "inset(0 0 18% 0)" },
+          {
+            y: 0,
+            opacity: 1,
+            clipPath: "inset(0 0 0% 0)",
+            duration: 0.56,
+            ease: "power3.out",
+            scrollTrigger: { trigger: element, start: "top 88%", once: true }
+          }
+        );
+      });
     },
     { scope: rootRef, dependencies: [reducedMotion] }
   );
@@ -248,7 +257,15 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }
 
   function nextScreen(direction: 1 | -1) {
-    setActiveScreen((current) => (current + direction + screens.length) % screens.length);
+    setActiveScreen((current) => {
+      const next = (current + direction + screens.length) % screens.length;
+      requestAnimationFrame(() => {
+        mobileScreensRef.current
+          ?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`)
+          ?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest", inline: "start" });
+      });
+      return next;
+    });
   }
 
   function handleMobileScreensScroll() {
@@ -316,7 +333,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   function renderHeader() {
     return (
       <>
-        <header className="site-header">
+        <header className={cx("site-header", headerHidden && "is-hidden")}>
           <Link className="brand" href="/">
             <img src={asset("/assets/logo.png")} width={42} height={42} alt="OrderFlow" />
             <span>OrderFlow</span>
@@ -507,13 +524,16 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
 
         <section id="features" className="section container">
           <SectionHeading eyebrow={t.sections.featuresEyebrow} title={t.sections.featuresTitle} />
-          <div className="stats-panel reveal">
-            {t.stats.map(([value, label], index) => (
-              <div className="stat-cell" key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
-                <i />
-              </div>
+          <div className="status-pairs reveal">
+            {[t.stats.slice(0, 2), t.stats.slice(2, 4), t.stats.slice(4, 6)].map((pair) => (
+              <article className="status-pair" key={pair[0][1]}>
+                {pair.map(([value, label]) => (
+                  <div className="status-item" key={label}>
+                    <strong>{value}</strong>
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </article>
             ))}
           </div>
           <div className="feature-grid">
@@ -577,9 +597,6 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                   aria-label={screen.title[lang]}
                 >
                   <PhoneFrame screenId={screen.id} lang={lang} />
-                  <span>
-                    {String(index + 1).padStart(2, "0")} / {screen.shortTitle[lang]}
-                  </span>
                 </button>
               ))}
             </div>
@@ -618,10 +635,12 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                   <p>{text}</p>
                 </article>
               ))}
+              <a className="install-download-card" href={release.href}>
+                <Download size={24} />
+                <span>{t.hero.primary}</span>
+                <strong>{release.version}</strong>
+              </a>
             </div>
-            <a className="btn btn-primary" href={release.href}>
-              <Download size={20} /> {t.hero.primary} {release.version}
-            </a>
           </div>
         </section>
 
@@ -811,10 +830,14 @@ function RouteIllustration() {
       <circle cx="292" cy="188" r="8" />
       <circle cx="505" cy="201" r="8" />
       <g className="runner">
-        <path d="M244 84c28-18 65-4 72 30l10 48 38 22-22 28-42-24-13-42-18 38 30 54-31 12-34-54-28 42-29-14 42-76c-14-4-26-12-35-24z" />
-        <circle cx="266" cy="66" r="26" />
-        <path d="M314 76l76 28-18 88-78-22z" />
-        <path d="M331 100h33M326 124h45M321 148h30" />
+        <circle className="runner-head" cx="246" cy="82" r="20" />
+        <path className="runner-body" d="M231 109l42 9 18 61-39 13-31-48z" />
+        <path className="runner-arm" d="M267 124l39 21 29-15" />
+        <path className="runner-leg" d="M252 185l-37 76m63-77l42 55" />
+        <rect className="runner-bag" x="208" y="132" width="46" height="57" rx="10" />
+        <rect className="runner-scanner" x="329" y="119" width="26" height="19" rx="4" transform="rotate(-24 329 119)" />
+        <circle className="scanner-pulse" cx="366" cy="102" r="12" />
+        <path className="scanner-beam" d="M353 121l63-47" />
       </g>
     </svg>
   );
