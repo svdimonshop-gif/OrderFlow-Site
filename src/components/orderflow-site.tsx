@@ -209,14 +209,6 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }, [activeScreen, reducedMotion]);
 
   useEffect(() => {
-    const rail = mobileScreensRef.current;
-    const item = rail?.querySelector<HTMLElement>(`[data-screen-index="${activeScreen}"]`);
-    if (!rail || !item) return;
-    const target = item.offsetLeft - (rail.clientWidth - item.clientWidth) / 2;
-    rail.scrollTo({ left: Math.max(0, target), behavior: reducedMotion ? "auto" : "smooth" });
-  }, [activeScreen, reducedMotion]);
-
-  useEffect(() => {
     if (lightbox === null) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setLightbox(null);
@@ -266,14 +258,17 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     setActiveStage((current) => (current + direction + heroStages.length) % heroStages.length);
   }
 
-  function nextScreen(direction: 1 | -1) {
-    const next = (activeScreen + direction + screens.length) % screens.length;
+  function selectScreen(next: number) {
     setActiveScreen(next);
     const rail = mobileScreensRef.current;
     const card = rail?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`);
     if (rail && card) {
-      rail.scrollTo({ left: card.offsetLeft, behavior: reducedMotion ? "auto" : "smooth" });
+      rail.scrollTo({ left: card.offsetLeft, behavior: "auto" });
     }
+  }
+
+  function nextScreen(direction: 1 | -1) {
+    selectScreen((activeScreen + direction + screens.length) % screens.length);
   }
 
   function handleMobileScreensScroll() {
@@ -634,7 +629,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             </div>
             <div className="screen-list" aria-label="Screens">
               {screens.map((screen, index) => (
-                <button key={screen.id} className={cx(activeScreen === index && "is-active")} onClick={() => setActiveScreen(index)}>
+                <button key={screen.id} className={cx(activeScreen === index && "is-active")} onClick={() => selectScreen(index)}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   {screen.shortTitle[lang]}
                 </button>
