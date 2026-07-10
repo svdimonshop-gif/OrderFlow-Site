@@ -96,6 +96,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const routeRef = useRef<HTMLDivElement>(null);
   const stageTouch = useRef<{ x: number; y: number } | null>(null);
   const screenSwipe = useRef<{ x: number; y: number } | null>(null);
+  const screenScrollTarget = useRef<number | null>(null);
   const didScreenSwipe = useRef(false);
   const lightboxSwipe = useRef<{ x: number; y: number } | null>(null);
   const lastScrollY = useRef(0);
@@ -116,6 +117,10 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     document.documentElement.lang = lang;
     window.localStorage.setItem("orderflow-lang", lang);
   }, [lang]);
+
+  useEffect(() => {
+    document.title = t.titles[initialPage];
+  }, [initialPage, t.titles]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -194,8 +199,8 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     if (reducedMotion || !heroPhoneRef.current) return;
     gsap.fromTo(
       heroPhoneRef.current,
-      { opacity: 0.55, x: activeStage % 2 === 0 ? 18 : -18, filter: "blur(8px)" },
-      { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.38, ease: "power3.out" }
+      { opacity: 0.72, x: 12, filter: "blur(3px)" },
+      { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.48, ease: "power2.inOut", overwrite: "auto" }
     );
   }, [activeStage, reducedMotion]);
 
@@ -229,11 +234,11 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
 
   useEffect(() => {
     if (reducedMotion) return;
-    const timer = window.setInterval(() => {
+    const timer = window.setTimeout(() => {
       setActiveStage((current) => (current + 1) % heroStages.length);
-    }, 4200);
-    return () => window.clearInterval(timer);
-  }, [reducedMotion]);
+    }, 5400);
+    return () => window.clearTimeout(timer);
+  }, [activeStage, reducedMotion]);
 
   const faqFiltered = useMemo(() => {
     const needle = faqSearch.trim().toLowerCase();
@@ -259,12 +264,16 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }
 
   function selectScreen(next: number) {
+    screenScrollTarget.current = next;
     setActiveScreen(next);
-    const rail = mobileScreensRef.current;
-    const card = rail?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`);
-    if (rail && card) {
-      rail.scrollTo({ left: card.offsetLeft, behavior: "auto" });
-    }
+    window.requestAnimationFrame(() => {
+      const rail = mobileScreensRef.current;
+      const card = rail?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`);
+      if (rail && card) rail.scrollTo({ left: card.offsetLeft, behavior: reducedMotion ? "auto" : "smooth" });
+      window.setTimeout(() => {
+        if (screenScrollTarget.current === next) screenScrollTarget.current = null;
+      }, reducedMotion ? 0 : 500);
+    });
   }
 
   function nextScreen(direction: 1 | -1) {
@@ -272,6 +281,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }
 
   function handleMobileScreensScroll() {
+    if (screenScrollTarget.current !== null) return;
     const rail = mobileScreensRef.current;
     if (!rail) return;
     const center = rail.scrollLeft + rail.clientWidth / 2;
@@ -335,11 +345,11 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
 
   function openTelegram() {
     const text = [
-      "OrderFlow feedback",
-      `Тип: ${t.feedback.types[feedbackType]}`,
-      `Оценка: ${rating}/5`,
-      `Версия: ${release.version}`,
-      `Сообщение: ${message || "—"}`
+      t.feedback.telegramTitle,
+      `${t.feedback.type}: ${t.feedback.types[feedbackType]}`,
+      `${t.feedback.rating}: ${rating}/5`,
+      `${t.feedback.version}: ${release.version}`,
+      `${t.feedback.message}: ${message || "—"}`
     ].join("\n");
     window.open(`${telegramUrl}?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
@@ -365,7 +375,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             <img src={asset("/assets/logo.png")} width={42} height={42} alt="OrderFlow" />
             <span>OrderFlow</span>
           </Link>
-          <nav className="desktop-nav" aria-label="Основная навигация">
+          <nav className="desktop-nav" aria-label={t.a11y.mainNav}>
             {navItems.map(([href, label]) => (
               <a key={href} href={sectionHref(href)}>
                 {label}
@@ -373,13 +383,13 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             ))}
           </nav>
           <div className="header-actions">
-            <LanguageToggle lang={lang} setLang={setLang} />
-            <ThemeToggle theme={theme} setTheme={setTheme} />
+            <LanguageToggle lang={lang} setLang={setLang} label={t.a11y.language} />
+            <ThemeToggle theme={theme} setTheme={setTheme} label={theme === "dark" ? t.a11y.lightTheme : t.a11y.darkTheme} />
             <a className="btn btn-primary header-download" href={release.href}>
               <Download size={18} />
               {t.nav.download}
             </a>
-            <button className="menu-button" aria-label="Open menu" onClick={() => setMenuOpen(true)}>
+            <button className="menu-button" aria-label={t.a11y.openMenu} onClick={() => setMenuOpen(true)}>
               <Menu size={28} />
             </button>
           </div>
@@ -392,11 +402,11 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                 <img src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
                 <span>OrderFlow</span>
               </Link>
-              <button className="menu-button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+              <button className="menu-button" aria-label={t.a11y.closeMenu} onClick={() => setMenuOpen(false)}>
                 <X size={30} />
               </button>
             </div>
-            <nav className="mobile-nav" aria-label="Мобильная навигация">
+            <nav className="mobile-nav" aria-label={t.a11y.mobileNav}>
               {navItems.map(([href, label]) => (
                 <a key={href} href={sectionHref(href)} onClick={() => setMenuOpen(false)}>
                   {label}
@@ -407,8 +417,8 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
               </Link>
             </nav>
             <div className="mobile-controls">
-              <LanguageToggle lang={lang} setLang={setLang} />
-              <ThemeToggle theme={theme} setTheme={setTheme} />
+              <LanguageToggle lang={lang} setLang={setLang} label={t.a11y.language} />
+              <ThemeToggle theme={theme} setTheme={setTheme} label={theme === "dark" ? t.a11y.lightTheme : t.a11y.darkTheme} />
             </div>
           </div>
         </div>
@@ -424,7 +434,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           <Link className="back-link" href="/">
             <ChevronLeft size={18} /> {t.backHome}
           </Link>
-          <SectionHeading eyebrow="OrderFlow FAQ" title={lang === "ru" ? "Найдите ответ без поисков в чатах." : "Знайдіть відповідь без пошуків у чатах."} />
+          <SectionHeading eyebrow={t.faqPage.eyebrow} title={t.faqPage.title} />
           <FaqBlock
             lang={lang}
             faqFiltered={faqFiltered}
@@ -451,18 +461,11 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             <ChevronLeft size={18} /> {t.backHome}
           </Link>
           <SectionHeading
-            eyebrow={lang === "ru" ? "Конфиденциальность" : "Конфіденційність"}
-            title={lang === "ru" ? "Данные остаются в рабочем контуре." : "Дані залишаються в робочому контурі."}
+            eyebrow={t.privacy.eyebrow}
+            title={t.privacy.title}
           />
           <div className="privacy-grid">
-            {[
-              ["Локальное хранение", "OrderFlow сохраняет рабочие данные на устройстве для offline-first сценариев и восстановления процесса."],
-              ["Корпоративная синхронизация", "Данные синхронизируются с корпоративным сервером OrderFlow. Сторонние облачные сервисы не используются."],
-              ["Камера", "Камера используется только для сканирования штрихкодов и QR-кодов внутри рабочих операций."],
-              ["Уведомления", "Уведомления нужны для информирования сотрудника о новых заказах и рабочих событиях."],
-              ["Авторизация", "Вход выполняется через рабочие идентификаторы, без публичных аккаунтов и рекламных трекеров."],
-              ["Обновления политики", "Политика обновляется вместе с изменениями приложения и публикуется на этой странице."]
-            ].map(([title, text]) => (
+            {t.privacy.cards.map(([title, text]) => (
               <article className="panel privacy-card" key={title}>
                 <ShieldCheck size={24} />
                 <h3>{title}</h3>
@@ -581,7 +584,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           <SectionHeading eyebrow={t.sections.theaterEyebrow} title={t.sections.theaterTitle} text={t.sections.theaterText} />
           <div className="theater panel reveal" ref={theaterRef}>
             <div className="theater-stage">
-              <button className="screen-button" onClick={() => setLightbox(activeScreen)} aria-label="Open screen">
+              <button className="screen-button" onClick={() => setLightbox(activeScreen)} aria-label={t.a11y.openScreen}>
                 <PhoneFrame screenId={activeTheaterScreen.id} lang={lang} />
               </button>
             </div>
@@ -590,10 +593,10 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
               <h3>{activeTheaterScreen.title[lang]}</h3>
               <p>{activeTheaterScreen.description[lang]}</p>
               <div className="theater-controls">
-                <button className="icon-btn" onClick={() => nextScreen(-1)} aria-label="Previous screen">
+                <button className="icon-btn" onClick={() => nextScreen(-1)} aria-label={t.a11y.previousScreen}>
                   <ChevronLeft />
                 </button>
-                <button className="icon-btn" onClick={() => nextScreen(1)} aria-label="Next screen">
+                <button className="icon-btn" onClick={() => nextScreen(1)} aria-label={t.a11y.nextScreen}>
                   <ChevronRight />
                 </button>
               </div>
@@ -627,7 +630,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                 </button>
               ))}
             </div>
-            <div className="screen-list" aria-label="Screens">
+            <div className="screen-list" aria-label={t.a11y.screens}>
               {screens.map((screen, index) => (
                 <button key={screen.id} className={cx(activeScreen === index && "is-active")} onClick={() => selectScreen(index)}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
@@ -649,12 +652,12 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
               </article>
             ))}
           </div>
-          <div className="workflow-controls" aria-label={lang === "ru" ? "Навигация по шагам" : "Навігація кроками"}>
+          <div className="workflow-controls" aria-label={t.a11y.workflow}>
             <span>{String(activeWorkflow + 1).padStart(2, "0")} / {String(t.workflow.length).padStart(2, "0")}</span>
             <i aria-hidden="true"><b style={{ width: `${((activeWorkflow + 1) / t.workflow.length) * 100}%` }} /></i>
-            <small>{lang === "ru" ? "Листайте шаги" : "Гортайте кроки"}</small>
-            <button className="icon-btn" type="button" onClick={() => moveWorkflow(-1)} aria-label={lang === "ru" ? "Предыдущий шаг" : "Попередній крок"}><ChevronLeft /></button>
-            <button className="icon-btn" type="button" onClick={() => moveWorkflow(1)} aria-label={lang === "ru" ? "Следующий шаг" : "Наступний крок"}><ChevronRight /></button>
+            <small>{t.a11y.swipeWorkflow}</small>
+            <button className="icon-btn" type="button" onClick={() => moveWorkflow(-1)} aria-label={t.a11y.previousStep}><ChevronLeft /></button>
+            <button className="icon-btn" type="button" onClick={() => moveWorkflow(1)} aria-label={t.a11y.nextStep}><ChevronRight /></button>
           </div>
         </section>
 
@@ -662,18 +665,19 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           <SectionHeading eyebrow={t.sections.installEyebrow} title={t.sections.installTitle} />
           <div className="install-panel reveal">
             <div className="install-steps">
-              {t.install.map(([title, text], index) => (
-                <article key={title}>
-                  <span>{index + 1}</span>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </article>
-              ))}
-              <a className="install-download-card" href={release.href}>
-                <span>5</span>
-                <h3>{t.hero.primary}</h3>
-                <p>{release.version}</p>
-              </a>
+              {t.install.map(([title, text], index) => {
+                const body = (
+                  <>
+                    <span>{index + 1}</span>
+                    <h3>{title}</h3>
+                    <p>{text}</p>
+                    {index === 0 && <small>{release.version}</small>}
+                  </>
+                );
+                return index === 0
+                  ? <a className="install-download-card" href={release.href} key={title}>{body}</a>
+                  : <article key={title}>{body}</article>;
+              })}
             </div>
           </div>
         </section>
@@ -721,7 +725,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
               <label>{t.feedback.rating}</label>
               <div className="rating">
                 {[1, 2, 3, 4, 5].map((value) => (
-                  <button type="button" key={value} className={cx(rating >= value && "is-active")} onClick={() => setRating(value)}>
+                  <button type="button" key={value} className={cx(rating >= value && "is-active")} onClick={() => setRating(value)} aria-label={`${t.feedback.rating}: ${value}`}>
                     ★
                   </button>
                 ))}
@@ -784,10 +788,10 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           onPointerUp={handleLightboxSwipeEnd}
           onPointerCancel={() => { lightboxSwipe.current = null; }}
         >
-          <button className="icon-btn close" onClick={() => setLightbox(null)} aria-label="Close">
+          <button className="icon-btn close" onClick={() => setLightbox(null)} aria-label={t.a11y.closeLightbox}>
             <X />
           </button>
-          <button className="icon-btn left" onClick={() => setLightbox((value) => ((value ?? 0) - 1 + screens.length) % screens.length)} aria-label="Previous">
+          <button className="icon-btn left" onClick={() => setLightbox((value) => ((value ?? 0) - 1 + screens.length) % screens.length)} aria-label={t.a11y.previousScreen}>
             <ChevronLeft />
           </button>
           <div className="lightbox-content">
@@ -801,7 +805,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
               {String(lightbox + 1).padStart(2, "0")} / {screens[lightbox].title[lang]}
             </p>
           </div>
-          <button className="icon-btn right" onClick={() => setLightbox((value) => ((value ?? 0) + 1) % screens.length)} aria-label="Next">
+          <button className="icon-btn right" onClick={() => setLightbox((value) => ((value ?? 0) + 1) % screens.length)} aria-label={t.a11y.nextScreen}>
             <ChevronRight />
           </button>
         </div>
@@ -810,9 +814,9 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   );
 }
 
-function LanguageToggle({ lang, setLang }: { lang: Lang; setLang: (lang: Lang) => void }) {
+function LanguageToggle({ lang, setLang, label }: { lang: Lang; setLang: (lang: Lang) => void; label: string }) {
   return (
-    <div className="toggle-group" aria-label="Language">
+    <div className="toggle-group" aria-label={label}>
       <Languages size={16} />
       {languages.map((language) => (
         <button key={language.code} className={cx(lang === language.code && "is-active")} onClick={() => setLang(language.code)} type="button">
@@ -823,9 +827,9 @@ function LanguageToggle({ lang, setLang }: { lang: Lang; setLang: (lang: Lang) =
   );
 }
 
-function ThemeToggle({ theme, setTheme }: { theme: "light" | "dark"; setTheme: (theme: "light" | "dark") => void }) {
+function ThemeToggle({ theme, setTheme, label }: { theme: "light" | "dark"; setTheme: (theme: "light" | "dark") => void; label: string }) {
   return (
-    <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
+    <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label={label}>
       {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
@@ -946,7 +950,8 @@ function FaqBlock({
 }
 
 function Footer({ lang }: { lang: Lang }) {
-  const t = copy[lang].footer;
+  const pageCopy = copy[lang];
+  const t = pageCopy.footer;
   return (
     <footer className="site-container site-footer">
       <div className="footer-brand">
@@ -956,7 +961,7 @@ function Footer({ lang }: { lang: Lang }) {
           <span>{t.made}</span>
         </div>
       </div>
-      <nav>
+      <nav aria-label={pageCopy.a11y.footerNav}>
         <Link href="/faq/">{t.help}</Link>
         <Link href="/privacy/">{t.privacy}</Link>
         <a href={releasePage}>{t.releases}</a>
