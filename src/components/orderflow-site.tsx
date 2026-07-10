@@ -70,6 +70,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeStage, setActiveStage] = useState(0);
   const [activeScreen, setActiveScreen] = useState(2);
+  const [activeWorkflow, setActiveWorkflow] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [release, setRelease] = useState<ReleaseInfo>({
     version: "v2.7.2",
@@ -91,6 +92,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const heroPhoneRef = useRef<HTMLDivElement>(null);
   const theaterRef = useRef<HTMLDivElement>(null);
   const mobileScreensRef = useRef<HTMLDivElement>(null);
+  const workflowRef = useRef<HTMLDivElement>(null);
   const routeRef = useRef<HTMLDivElement>(null);
   const stageTouch = useRef<{ x: number; y: number } | null>(null);
   const screenSwipe = useRef<{ x: number; y: number } | null>(null);
@@ -233,6 +235,14 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     rail.scrollTo({ left: Math.max(0, target), behavior: reducedMotion ? "auto" : "smooth" });
   }, [activeStage, reducedMotion]);
 
+  useEffect(() => {
+    if (reducedMotion) return;
+    const timer = window.setInterval(() => {
+      setActiveStage((current) => (current + 1) % heroStages.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [reducedMotion]);
+
   const faqFiltered = useMemo(() => {
     const needle = faqSearch.trim().toLowerCase();
     return faqItems.filter((item) => {
@@ -257,15 +267,13 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   }
 
   function nextScreen(direction: 1 | -1) {
-    setActiveScreen((current) => {
-      const next = (current + direction + screens.length) % screens.length;
-      requestAnimationFrame(() => {
-        mobileScreensRef.current
-          ?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`)
-          ?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest", inline: "start" });
-      });
-      return next;
-    });
+    const next = (activeScreen + direction + screens.length) % screens.length;
+    setActiveScreen(next);
+    const rail = mobileScreensRef.current;
+    const card = rail?.querySelector<HTMLElement>(`[data-screen-index="${next}"]`);
+    if (rail && card) {
+      rail.scrollTo({ left: card.offsetLeft, behavior: reducedMotion ? "auto" : "smooth" });
+    }
   }
 
   function handleMobileScreensScroll() {
@@ -283,6 +291,30 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
       }
     });
     setActiveScreen((current) => (current === nearest ? current : nearest));
+  }
+
+  function moveWorkflow(direction: 1 | -1) {
+    const next = (activeWorkflow + direction + t.workflow.length) % t.workflow.length;
+    setActiveWorkflow(next);
+    const rail = workflowRef.current;
+    const card = rail?.querySelector<HTMLElement>(`[data-workflow-index="${next}"]`);
+    if (rail && card) rail.scrollTo({ left: card.offsetLeft, behavior: reducedMotion ? "auto" : "smooth" });
+  }
+
+  function handleWorkflowScroll() {
+    const rail = workflowRef.current;
+    if (!rail) return;
+    const center = rail.scrollLeft + rail.clientWidth / 2;
+    let nearest = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    rail.querySelectorAll<HTMLElement>("[data-workflow-index]").forEach((item) => {
+      const nextDistance = Math.abs(item.offsetLeft + item.clientWidth / 2 - center);
+      if (nextDistance < distance) {
+        distance = nextDistance;
+        nearest = Number(item.dataset.workflowIndex || 0);
+      }
+    });
+    setActiveWorkflow((current) => (current === nearest ? current : nearest));
   }
 
   function handleScreenSwipeEnd(event: PointerEvent<HTMLDivElement>) {
@@ -453,7 +485,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
     <div ref={rootRef} className="site-shell">
       {renderHeader()}
       <main>
-        <section className="hero container">
+        <section className="hero site-container">
           <div className="hero-copy reveal">
             <div className="badge badge-soft">
               <span className="dot" />
@@ -522,7 +554,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section id="features" className="section container">
+        <section id="features" className="section site-container">
           <SectionHeading eyebrow={t.sections.featuresEyebrow} title={t.sections.featuresTitle} />
           <div className="status-pairs reveal">
             {[t.stats.slice(0, 2), t.stats.slice(2, 4), t.stats.slice(4, 6)].map((pair) => (
@@ -550,7 +582,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section id="screens" className="section container">
+        <section id="screens" className="section site-container">
           <SectionHeading eyebrow={t.sections.theaterEyebrow} title={t.sections.theaterTitle} text={t.sections.theaterText} />
           <div className="theater panel reveal" ref={theaterRef}>
             <div className="theater-stage">
@@ -611,22 +643,29 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section id="workflow" className="section container">
+        <section id="workflow" className="section site-container">
           <SectionHeading eyebrow={t.sections.workflowEyebrow} title={t.sections.workflowTitle} />
-          <div className="workflow-grid">
+          <div className="workflow-grid" ref={workflowRef} onScroll={handleWorkflowScroll}>
             {t.workflow.map(([title, text], index) => (
-              <article className="panel workflow-card reveal" key={title}>
+              <article className="panel workflow-card reveal" data-workflow-index={index} key={title}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </article>
             ))}
           </div>
+          <div className="workflow-controls" aria-label={lang === "ru" ? "Навигация по шагам" : "Навігація кроками"}>
+            <span>{String(activeWorkflow + 1).padStart(2, "0")} / {String(t.workflow.length).padStart(2, "0")}</span>
+            <i aria-hidden="true"><b style={{ width: `${((activeWorkflow + 1) / t.workflow.length) * 100}%` }} /></i>
+            <small>{lang === "ru" ? "Листайте шаги" : "Гортайте кроки"}</small>
+            <button className="icon-btn" type="button" onClick={() => moveWorkflow(-1)} aria-label={lang === "ru" ? "Предыдущий шаг" : "Попередній крок"}><ChevronLeft /></button>
+            <button className="icon-btn" type="button" onClick={() => moveWorkflow(1)} aria-label={lang === "ru" ? "Следующий шаг" : "Наступний крок"}><ChevronRight /></button>
+          </div>
         </section>
 
-        <section className="section container install-section">
+        <section className="section site-container install-section">
           <SectionHeading eyebrow={t.sections.installEyebrow} title={t.sections.installTitle} />
-          <div className="install-panel panel reveal">
+          <div className="install-panel reveal">
             <div className="install-steps">
               {t.install.map(([title, text], index) => (
                 <article key={title}>
@@ -636,15 +675,15 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                 </article>
               ))}
               <a className="install-download-card" href={release.href}>
-                <Download size={24} />
-                <span>{t.hero.primary}</span>
-                <strong>{release.version}</strong>
+                <span>5</span>
+                <h3>{t.hero.primary}</h3>
+                <p>{release.version}</p>
               </a>
             </div>
           </div>
         </section>
 
-        <section className="section container">
+        <section className="section site-container">
           <SectionHeading eyebrow={t.sections.faqEyebrow} title={t.sections.faqTitle} />
           <FaqBlock
             lang={lang}
@@ -663,7 +702,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section id="feedback" className="section container">
+        <section id="feedback" className="section site-container">
           <div className="feedback panel reveal">
             <div>
               <span className="eyebrow">{t.sections.feedbackEyebrow}</span>
@@ -703,7 +742,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section id="security" className="section container">
+        <section id="security" className="section site-container">
           <SectionHeading eyebrow={t.sections.securityEyebrow} title={t.sections.securityTitle} />
           <div className="security-panel panel reveal">
             {t.security.map(([title, text], index) => {
@@ -722,7 +761,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </div>
         </section>
 
-        <section className="section container">
+        <section className="section site-container">
           <div className="final-cta reveal">
             <div>
               <h2>{t.sections.finalTitle}</h2>
@@ -914,7 +953,7 @@ function FaqBlock({
 function Footer({ lang }: { lang: Lang }) {
   const t = copy[lang].footer;
   return (
-    <footer className="container site-footer">
+    <footer className="site-container site-footer">
       <div className="footer-brand">
         <img src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
         <div>
