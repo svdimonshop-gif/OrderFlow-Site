@@ -478,6 +478,7 @@ main {
 .platform-cards {
   display: grid;
   grid-template-columns: minmax(150px, 0.72fr) minmax(250px, 1.28fr);
+  align-items: start;
   gap: 12px;
   margin-top: 24px;
 }
