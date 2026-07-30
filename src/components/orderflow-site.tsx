@@ -49,6 +49,7 @@ type ReleaseInfo = {
 };
 
 const iconMap = [ClipboardCheck, ScanLine, PackageCheck, ShieldCheck];
+const pwaUrl = "https://svdimonshop-gif.github.io/OrderFlow-PWA/";
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -499,12 +500,31 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
                 {t.hero.secondary} <ArrowRight size={20} />
               </a>
             </div>
-            <div className="release-card">
-              <span className={cx("release-led", release.ready && "is-ready")} />
-              <div>
-                <strong>{release.version}</strong>
-                <span>{[release.size, release.date].filter(Boolean).join(" · ")}</span>
+            <div className="platform-cards">
+              <div className="release-card">
+                <span className={cx("release-led", release.ready && "is-ready")} />
+                <div>
+                  <strong>{release.version}</strong>
+                  <span>{[release.size, release.date].filter(Boolean).join(" · ")}</span>
+                </div>
               </div>
+              <aside className="iphone-card">
+                <div className="iphone-card-badge">
+                  <Smartphone size={18} />
+                  {t.iphone.badge}
+                </div>
+                <h2>{t.iphone.title}</h2>
+                <p>{t.iphone.text}</p>
+                <a className="btn btn-secondary" href={pwaUrl} target="_blank" rel="noreferrer">
+                  {t.iphone.open} <ArrowRight size={19} />
+                </a>
+                <details>
+                  <summary>{t.iphone.install}</summary>
+                  <ol>
+                    {t.iphone.steps.map((step) => <li key={step}>{step}</li>)}
+                  </ol>
+                </details>
+              </aside>
             </div>
           </div>
 
