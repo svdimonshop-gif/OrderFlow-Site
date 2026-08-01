@@ -74,7 +74,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const [activeWorkflow, setActiveWorkflow] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [release, setRelease] = useState<ReleaseInfo>({
-    version: "v2.7.2",
+    version: "v2.7.4",
     size: "",
     date: copy.ru.hero.releaseFallback,
     href: releaseFallback,
@@ -152,7 +152,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
         const data = await response.json();
         const apk = data.assets?.find((assetItem: { name: string }) => assetItem.name === "OrderFlow.apk")
           || data.assets?.find((assetItem: { name: string }) => assetItem.name?.toLowerCase().endsWith(".apk"));
-        const tag = data.tag_name || "v2.7.2";
+        const tag = data.tag_name || "v2.7.4";
         const dateSource = apk?.updated_at || data.published_at;
         setRelease({
           version: tag,
@@ -163,7 +163,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
         });
       } catch {
         setRelease({
-          version: "v2.7.2",
+          version: "v2.7.4",
           size: "",
           date: t.hero.releaseFallback,
           href: releaseFallback,
