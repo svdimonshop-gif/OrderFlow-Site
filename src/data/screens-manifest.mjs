@@ -4,6 +4,7 @@ export const screens = [
   { file: "home.jpg" },
   { file: "profile.jpg" },
   { file: "settings.jpg" },
+  { file: "personal-results.jpg" },
   { file: "notifications.jpg" },
   { file: "connection.jpg" },
   { file: "history.jpg" },

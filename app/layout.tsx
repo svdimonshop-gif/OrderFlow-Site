@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const logoPath = `${basePath}/assets/logo.png`;
+
 export const metadata: Metadata = {
   title: "OrderFlow — рабочее место сборщика заказов",
   description:
     "OrderFlow ведёт сборщика от нового заказа до упаковки, штрихкода и QR: сканирование, замены, offline-first и быстрый старт с APK.",
+  icons: {
+    icon: logoPath,
+    apple: logoPath
+  },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://svdimonshop-gif.github.io/OrderFlow-Site"),
   openGraph: {
     title: "OrderFlow — рабочее место сборщика заказов",
@@ -12,7 +19,7 @@ export const metadata: Metadata = {
       "Сканирование, замены, упаковка, корзина, штрихкод и QR в одном мобильном маршруте.",
     url: "/",
     siteName: "OrderFlow",
-    images: ["/assets/logo.png"],
+    images: [logoPath],
     type: "website"
   },
   twitter: {

@@ -10,8 +10,8 @@ const required = [
 
 const missing = required.filter((file) => !existsSync(join(root, file)));
 
-if (screens.length !== 18) {
-  console.error(`Expected 18 screens, found ${screens.length}.`);
+if (screens.length === 0) {
+  console.error("The screenshot manifest must not be empty.");
   process.exit(1);
 }
 

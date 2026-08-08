@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,12 +18,10 @@ import {
   Menu,
   Moon,
   PackageCheck,
-  QrCode,
   ScanLine,
   Search,
   Send,
   ShieldCheck,
-  ShoppingCart,
   Smartphone,
   Sun,
   X,
@@ -50,31 +49,65 @@ type ReleaseInfo = {
 
 const iconMap = [ClipboardCheck, ScanLine, PackageCheck, ShieldCheck];
 const pwaUrl = "https://svdimonshop-gif.github.io/OrderFlow-PWA/";
+const preferenceChangeEvent = "orderflow-preference-change";
+
+function subscribeToMotionPreference(onStoreChange: () => void) {
+  const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+  query.addEventListener("change", onStoreChange);
+  return () => query.removeEventListener("change", onStoreChange);
+}
 
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
+  return useSyncExternalStore(
+    subscribeToMotionPreference,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false
+  );
+}
 
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(query.matches);
-    const onChange = () => setReduced(query.matches);
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
-  }, []);
+function subscribeToPreferences(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(preferenceChangeEvent, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(preferenceChangeEvent, onStoreChange);
+  };
+}
 
-  return reduced;
+function storedLanguage(): Lang {
+  const value = window.localStorage.getItem("orderflow-lang");
+  return value === "ua" ? "ua" : "ru";
+}
+
+function storedTheme(): "light" | "dark" {
+  return window.localStorage.getItem("orderflow-theme") === "dark" ? "dark" : "light";
+}
+
+function savePreference(key: string, value: string) {
+  window.localStorage.setItem(key, value);
+  window.dispatchEvent(new Event(preferenceChangeEvent));
 }
 
 export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
-  const [lang, setLang] = useState<Lang>("ru");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const lang = useSyncExternalStore<Lang>(
+    subscribeToPreferences,
+    storedLanguage,
+    () => "ru"
+  );
+  const theme = useSyncExternalStore<"light" | "dark">(
+    subscribeToPreferences,
+    storedTheme,
+    () => "light"
+  );
+  const setLang = (next: Lang) => savePreference("orderflow-lang", next);
+  const setTheme = (next: "light" | "dark") => savePreference("orderflow-theme", next);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeStage, setActiveStage] = useState(0);
   const [activeScreen, setActiveScreen] = useState(2);
   const [activeWorkflow, setActiveWorkflow] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [release, setRelease] = useState<ReleaseInfo>({
-    version: "v2.7.4",
+    version: "v2.7.6",
     size: "",
     date: copy.ru.hero.releaseFallback,
     href: releaseFallback,
@@ -108,15 +141,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
   const activeTheaterScreen = screens[activeScreen];
 
   useEffect(() => {
-    const savedLang = window.localStorage.getItem("orderflow-lang") as Lang | null;
-    const savedTheme = window.localStorage.getItem("orderflow-theme") as "light" | "dark" | null;
-    if (savedLang === "ru" || savedLang === "ua") setLang(savedLang);
-    if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
-  }, []);
-
-  useEffect(() => {
     document.documentElement.lang = lang;
-    window.localStorage.setItem("orderflow-lang", lang);
   }, [lang]);
 
   useEffect(() => {
@@ -125,7 +150,6 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("orderflow-theme", theme);
   }, [theme]);
 
   useEffect(() => {
@@ -152,7 +176,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
         const data = await response.json();
         const apk = data.assets?.find((assetItem: { name: string }) => assetItem.name === "OrderFlow.apk")
           || data.assets?.find((assetItem: { name: string }) => assetItem.name?.toLowerCase().endsWith(".apk"));
-        const tag = data.tag_name || "v2.7.4";
+        const tag = data.tag_name || "v2.7.6";
         const dateSource = apk?.updated_at || data.published_at;
         setRelease({
           version: tag,
@@ -163,7 +187,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
         });
       } catch {
         setRelease({
-          version: "v2.7.4",
+          version: "v2.7.6",
           size: "",
           date: t.hero.releaseFallback,
           href: releaseFallback,
@@ -373,7 +397,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
       <>
         <header className={cx("site-header", headerHidden && "is-hidden")}>
           <Link className="brand" href="/">
-            <img src={asset("/assets/logo.png")} width={42} height={42} alt="OrderFlow" />
+            <Image src={asset("/assets/logo.png")} width={42} height={42} alt="OrderFlow" />
             <span>OrderFlow</span>
           </Link>
           <nav className="desktop-nav" aria-label={t.a11y.mainNav}>
@@ -400,7 +424,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           <div className="mobile-sheet-panel">
             <div className="mobile-sheet-head">
               <Link className="brand" href="/" onClick={() => setMenuOpen(false)}>
-                <img src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
+                <Image src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
                 <span>OrderFlow</span>
               </Link>
               <button className="menu-button" aria-label={t.a11y.closeMenu} onClick={() => setMenuOpen(false)}>
@@ -815,7 +839,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
             <ChevronLeft />
           </button>
           <div className="lightbox-content">
-            <img
+            <Image
               src={asset(`/assets/screenshots/${screens[lightbox].file}`)}
               width={screens[lightbox].width}
               height={screens[lightbox].height}
@@ -869,7 +893,7 @@ function PhoneFrame({ screenId, lang, priority = false }: { screenId: ScreenId; 
   const screen = screenById[screenId];
   return (
     <div className="phone-frame">
-      <img
+      <Image
         src={asset(`/assets/screenshots/${screen.file}`)}
         width={screen.width}
         height={screen.height}
@@ -975,7 +999,7 @@ function Footer({ lang }: { lang: Lang }) {
   return (
     <footer className="site-container site-footer">
       <div className="footer-brand">
-        <img src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
+        <Image src={asset("/assets/logo.png")} width={44} height={44} alt="OrderFlow" />
         <div>
           <strong>OrderFlow</strong>
           <span>{t.made}</span>
