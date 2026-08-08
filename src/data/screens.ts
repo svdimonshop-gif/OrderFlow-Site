@@ -24,6 +24,7 @@ export type HeroStageId = "new" | "scan" | "replacement" | "packing" | "cart" | 
 export type AppScreen = {
   id: ScreenId;
   file: string;
+  cacheKey?: string;
   title: { ru: string; ua: string };
   shortTitle: { ru: string; ua: string };
   alt: { ru: string; ua: string };
@@ -93,6 +94,7 @@ export const screens: AppScreen[] = [
   {
     id: "settings",
     file: "settings.jpg",
+    cacheKey: "26259b29d99c",
     title: { ru: "Настройки приложения", ua: "Налаштування застосунку" },
     shortTitle: { ru: "Настройки", ua: "Налаштування" },
     alt: { ru: "Настройки OrderFlow со статистикой и личными результатами", ua: "Налаштування OrderFlow зі статистикою й особистими результатами" },

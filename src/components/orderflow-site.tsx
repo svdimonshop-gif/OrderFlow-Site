@@ -32,7 +32,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { copy, faqCategories, faqItems, languages, type Lang } from "@/data/content";
 import { heroStages, screenById, screens } from "@/data/screens";
-import type { ScreenId } from "@/data/screens";
+import type { AppScreen, ScreenId } from "@/data/screens";
 import { asset, cx, formatBytes, formatDate, releaseFallback, releasePage, repo, telegramUrl } from "@/lib/utils";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -840,7 +840,7 @@ export function OrderFlowSite({ initialPage }: { initialPage: PageKind }) {
           </button>
           <div className="lightbox-content">
             <Image
-              src={asset(`/assets/screenshots/${screens[lightbox].file}`)}
+              src={screenAsset(screens[lightbox])}
               width={screens[lightbox].width}
               height={screens[lightbox].height}
               alt={screens[lightbox].alt[lang]}
@@ -894,7 +894,7 @@ function PhoneFrame({ screenId, lang, priority = false }: { screenId: ScreenId; 
   return (
     <div className="phone-frame">
       <Image
-        src={asset(`/assets/screenshots/${screen.file}`)}
+        src={screenAsset(screen)}
         width={screen.width}
         height={screen.height}
         alt={screen.alt[lang]}
@@ -902,6 +902,11 @@ function PhoneFrame({ screenId, lang, priority = false }: { screenId: ScreenId; 
       />
     </div>
   );
+}
+
+function screenAsset(screen: AppScreen) {
+  const path = `/assets/screenshots/${screen.file}`;
+  return asset(screen.cacheKey ? `${path}?v=${screen.cacheKey}` : path);
 }
 
 function RouteIllustration() {
